@@ -20,21 +20,33 @@ st.set_page_config(
 )
 
 # ============================================================
-# 1. DỮ LIỆU NỘI DUNG
+# 1. DỮ LIỆU NỘI DUNG (ĐÃ NÂNG CẤP MODULE 1)
 # ============================================================
 
 KNOWLEDGE = [
     {
-        "title": "Alzheimer là gì?",
+        "title": "Bản chất y học của bệnh Alzheimer",
         "category": "Kiến thức nền tảng",
-        "icon": "🧠",
-        "summary": "Alzheimer là một bệnh lý não tiến triển, ảnh hưởng đến trí nhớ, tư duy và khả năng thực hiện các hoạt động thường ngày.",
+        "icon": "🧬",
+        "summary": "Alzheimer là một rối loạn não bộ tiến triển mạn tính, làm tổn thương và tiêu diệt dần các tế bào thần kinh.",
         "body": [
-            "Alzheimer là nguyên nhân phổ biến của sa sút trí tuệ. Bệnh thường tiến triển từ từ và có thể ảnh hưởng đến nhiều mặt của đời sống.",
-            "Người mắc bệnh có thể gặp khó khăn khi ghi nhớ thông tin mới, tìm từ ngữ, định hướng thời gian – không gian hoặc xử lý những công việc quen thuộc.",
-            "Mỗi người có biểu hiện và tốc độ tiến triển khác nhau. Không nên đánh đồng mọi biểu hiện hay quy kết một người chỉ qua vài lần quên."
+            "Dưới góc độ sinh học thần kinh, Alzheimer đặc trưng bởi sự tích tụ bất thường của các mảng bám protein amyloid-beta bên ngoài tế bào thần kinh và các đám rối sợi thần kinh tau bên trong tế bào.",
+            "Quá trình tích tụ này làm gián đoạn nghiêm trọng các xung điện và thông tin giữa các tế bào thần kinh, dẫn đến teo dần các vùng não chịu trách nhiệm về trí nhớ, ngôn ngữ và tư duy.",
+            "Bệnh không phải là một phần tất yếu của quá trình lão hóa tự nhiên, mà là một bệnh lý có cơ chế sinh bệnh phức tạp cần được cộng đồng thấu hiểu và hỗ trợ đúng cách."
         ],
-        "takeaway": "Thay vì chỉ nhìn vào điều người bệnh quên, hãy chú ý đến điều họ đang cần được hỗ trợ."
+        "takeaway": "Nhìn nhận Alzheimer dưới góc độ bệnh lý giúp chúng ta loại bỏ định kiến, kiên nhẫn hơn với người bệnh và gia đình họ."
+    },
+    {
+        "title": "Hiểu đúng về các giai đoạn tiến triển của bệnh",
+        "category": "Kiến thức nền tảng",
+        "icon": "📈",
+        "summary": "Bệnh Alzheimer tiến triển theo các mốc từ nhẹ đến nặng, mỗi giai đoạn có những biểu hiện và nhu cầu hỗ trợ riêng.",
+        "body": [
+            "Giai đoạn sớm (Nhẹ): Người bệnh thường bắt đầu quên các sự kiện gần đây, khó tìm từ ngữ khi nói chuyện, hoặc đôi khi lạc ở những nơi quen thuộc nhưng vẫn có thể tự chủ trong nhiều việc.",
+            "Giai đoạn trung bình (Trung bình): Vùng não bị tổn thương lan rộng hơn. Người bệnh có thể nhầm lẫn về thời gian, địa điểm, lặp lại câu hỏi, thay đổi tâm trạng rõ rệt và cần sự hỗ trợ nhiều hơn trong sinh hoạt.",
+            "Giai đoạn tiến triển (Nặng): Khả năng giao tiếp bằng lời nói suy giảm rõ rệt, người bệnh phụ thuộc hoàn toàn vào người chăm sóc trong các hoạt động hằng ngày và cần sự chăm sóc y tế toàn diện."
+        ],
+        "takeaway": "Mỗi giai đoạn đòi hỏi người đồng hành một sự điều chỉnh về cách giao tiếp và phương pháp chăm sóc phù hợp."
     },
     {
         "title": "Phân biệt quên thông thường và dấu hiệu cần lưu ý",
@@ -543,8 +555,8 @@ def welcome_screen():
     intro_text = (
         "Chào mừng bạn đến với Chạm Hub. "
         "Alzheimer không chỉ là câu chuyện về trí nhớ, "
-        "mà còn là câu chuyện về con người, gia đình và sự kết nối. "
-        "Tại đây, bạn sẽ khám phá kiến thức khoa học dễ hiểu, "
+        "mà còn là câu chuyện về sinh học não bộ, con người và sự kết nối. "
+        "Tại đây, bạn sẽ khám phá kiến thức khoa học chi tiết, "
         "thử sức với các tình huống đồng hành, tham gia trò chơi tương tác "
         "và viết nên những hành động sẻ chia của riêng mình. "
         "Hãy cùng CHẠM thấu hiểu để kết nối, kết nối để sẻ chia. "
@@ -703,8 +715,8 @@ if page == "Trang chủ":
       <h1>CHẠM<br>để thấu hiểu.</h1>
 
       <p>
-      Một hành trình học hỏi về Alzheimer, trí nhớ và sự đồng hành.
-      Bắt đầu từ kiến thức đúng, tiếp nối bằng trải nghiệm
+      Một hành trình học hỏi nâng cao về Alzheimer, cơ chế sinh học não bộ và sự đồng hành.
+      Bắt đầu từ kiến thức chuẩn y khoa, tiếp nối bằng trải nghiệm
       và kết thúc bằng một hành động sẻ chia.
       </p>
 
@@ -721,8 +733,8 @@ if page == "Trang chủ":
     cols = st.columns(3)
 
     cards = [
-        ("🧠", "Hiểu đúng",
-         "Khám phá Alzheimer, não bộ và trí nhớ bằng ngôn ngữ dễ tiếp cận."),
+        ("🧠", "Hiểu sâu bản chất",
+         "Khám phá cơ chế sinh học thần kinh và các giai đoạn tiến triển của Alzheimer."),
         ("🤝", "Biết cách đồng hành",
          "Thực hành phản hồi trong những tình huống đời sống gần gũi."),
         ("💚", "Lan tỏa sẻ chia",
@@ -743,7 +755,7 @@ if page == "Trang chủ":
     quick = st.columns(4)
 
     quick_items = [
-        ("📚", "Thư viện tri thức", "Những kiến thức nền tảng"),
+        ("📚", "Thư viện tri thức", "Kiến thức chuyên sâu & nền tảng"),
         ("🧩", "Trạm trải nghiệm", "Mini-game và câu hỏi"),
         ("💬", "Cẩm nang đồng hành", "Tình huống đời sống"),
         ("🌱", "Hành trình thấu cảm", "Viết điều bạn muốn làm")
@@ -777,74 +789,85 @@ if page == "Trang chủ":
         )
 
 # ============================================================
-# 7. KHÁM PHÁ ALZHEIMER
+# 7. KHÁM PHÁ ALZHEIMER (MODULE 1 NÂNG CẤP TOÀN DIỆN)
 # ============================================================
 
 elif page == "Khám phá Alzheimer":
 
     section_header(
-        "01 / KNOW THE BASICS",
-        "Khám phá Alzheimer",
-        "Bắt đầu bằng những hiểu biết đúng đắn, không định kiến và không tự chẩn đoán."
+        "01 / MODULE 1: HIỂU SÂU VỀ ALZHEIMER",
+        "Khám phá Alzheimer & Cơ chế sinh học",
+        "Trang bị kiến thức khoa học cốt lõi, góc nhìn chuyên sâu và lộ trình tiến triển của bệnh."
     )
 
     st.markdown(
-        '<div class="quote">Alzheimer không định nghĩa toàn bộ con người. '
-        'Đằng sau những thay đổi về trí nhớ vẫn là một cá nhân có cảm xúc, '
-        'sở thích, lịch sử và phẩm giá riêng.</div>',
+        '<div class="quote"><b>Góc nhìn nhân văn:</b> Alzheimer không xóa nhòa nhân cách hay tình cảm sâu kín của một con người. '
+        'Hiểu đúng về căn bệnh giúp chúng ta nhìn thấu những nhu cầu đằng sau biểu hiện bên ngoài.</div>',
         unsafe_allow_html=True
     )
 
-    tabs = st.tabs([
-        "Alzheimer là gì?",
-        "Những thay đổi có thể gặp",
-        "Khi nào nên tìm hỗ trợ?"
+    # Chia các Tab nâng cấp cho Module 1
+    mod1_tabs = st.tabs([
+        "🧬 Cơ chế sinh học thần kinh",
+        "📊 Các giai đoạn tiến triển",
+        "⚠️ Nhận diện & Lưu ý y tế"
     ])
 
-    with tabs[0]:
-        st.subheader("Một bệnh lý ảnh hưởng đến não bộ")
-
+    with mod1_tabs[0]:
+        st.subheader("Bản chất phân tử và cấu trúc não bộ bị ảnh hưởng")
         st.write(
-            "Alzheimer là bệnh lý não tiến triển, có thể ảnh hưởng đến trí nhớ, "
-            "tư duy, ngôn ngữ, định hướng và khả năng thực hiện hoạt động thường ngày."
+            "Bệnh Alzheimer là kết quả của sự suy thoái tế bào thần kinh diễn ra âm thầm trong nhiều năm trước khi các triệu chứng lâm sàng xuất hiện rõ rệt. "
+            "Hai 'dấu ấn sinh học' chính cấu thành bệnh bao gồm:"
         )
+        
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.markdown("""
+            <div class="panel">
+              <h4>🧱 Mảng bám Amyloid-beta</h4>
+              <p class="muted">Các đoạn protein amyloid tích tụ lại thành mảng bám cứng đầu nằm giữa các tế bào thần kinh trong não, cản trở trực tiếp quá trình truyền tín hiệu sinh hóa giữa các synapse.</p>
+            </div>
+            """, unsafe_allow_html=True)
+        with col_b:
+            st.markdown("""
+            <div class="panel">
+              <h4>🧵 Đám rối sợi Tau</h4>
+              <p class="muted">Bên trong tế bào thần kinh, các protein tau thay đổi cấu trúc, quấn xoắn lại với nhau thành các đám rối, khiến hệ thống vận chuyển chất dinh dưỡng bên trong tế bào bị sụp đổ.</p>
+            </div>
+            """, unsafe_allow_html=True)
 
+        st.write("")
+        st.info("💡 **Hậu quả:** Sự kết hợp của mảng bám và đám rối sợi thần kinh làm cho các tế bào não teo dần (teo vỏ não và vùng hồi hải mã), làm mất dần khả năng ghi nhớ và điều phối hành vi.")
+
+    with mod1_tabs[1]:
+        st.subheader("Hành trình tiến triển của bệnh qua 3 giai đoạn chính")
+        st.write("Việc nắm bắt các giai đoạn giúp người chăm sóc chuẩn bị tâm lý và phương án hỗ trợ phù hợp cho từng mốc thời gian:")
+
+        stage_cols = st.columns(3)
+        stages_info = [
+            ("Giai đoạn 1: Sớm (Nhẹ)", "🌱", "Bắt đầu quên các cuộc trò chuyện gần đây, hay để lẫn lộn đồ đạc, khó tập trung hoặc lập kế hoạch. Người bệnh vẫn có thể tự chăm sóc bản thân nhưng bắt đầu nhận thấy sự khác biệt."),
+            ("Giai đoạn 2: Trung bình", "⚡", "Vùng não tổn thương lan rộng. Người bệnh gặp khó khăn khi mặc quần áo, nhầm lẫn thứ ngày/tháng, hay đi lạc, có thể có các thay đổi về cảm xúc hoặc hoang tưởng nhẹ."),
+            ("Giai đoạn 3: Tiến triển (Nặng)", "🛡️", "Mất khả năng giao tiếp mạch lạc, không nhận diện được người thân quen, phụ thuộc hoàn toàn vào người chăm sóc trong mọi hoạt động ăn uống, vệ sinh hằng ngày.")
+        ]
+        for col, (st_title, st_icon, st_desc) in zip(stage_cols, stages_info):
+            with col:
+                st.markdown(f'<div class="panel"><div class="panel-icon">{st_icon}</div><h3>{st_title}</h3><p class="muted">{st_desc}</p></div>', unsafe_allow_html=True)
+
+    with mod1_tabs[2]:
+        st.subheader("Lưu ý y tế quan trọng và khuyến cáo chẩn đoán")
         st.write(
-            "Bệnh không phải là hệ quả tất yếu của tuổi già. "
-            "Người lớn tuổi có thể hay quên vì nhiều nguyên nhân khác nhau; "
-            "cần đánh giá chuyên môn để tìm hiểu nguyên nhân."
+            "Việc chẩn đoán chính xác đòi hỏi sự thăm khám kỹ lưỡng từ các bác sĩ chuyên khoa thần kinh thông qua bài kiểm tra nhận thức, "
+            "chụp chiếu thần kinh (MRI/CT) và loại trừ các nguyên nhân khác gây suy giảm trí nhớ (như thiếu hụt vitamin, trầm cảm, hoặc bệnh lý tuyến giáp)."
+        )
+        st.warning(
+            "⚠️ **Lưu ý quan trọng:** Không tự ý kết luận người lớn tuổi bị Alzheimer chỉ qua một vài lần quên lẫn thông thường. "
+            "Hãy đưa người thân đến cơ sở y tế uy tín để được đánh giá toàn diện và nhận tư vấn phác đồ chuẩn y khoa."
         )
 
-    with tabs[1]:
-        st.subheader("Biểu hiện không giống nhau ở mọi người")
-
-        for item in [
-            "Khó ghi nhớ thông tin mới hoặc thường lặp lại câu hỏi.",
-            "Khó tìm từ, theo dõi cuộc trò chuyện hoặc diễn đạt ý muốn.",
-            "Khó định hướng ở nơi quen thuộc hoặc nhầm lẫn về thời gian.",
-            "Gặp trở ngại khi thực hiện công việc quen thuộc.",
-            "Thay đổi tâm trạng, hành vi hoặc khả năng xử lý tình huống."
-        ]:
-            st.markdown(f"- {item}")
-
-    with tabs[2]:
-        st.subheader("Đừng tự kết luận")
-
-        st.write(
-            "Nếu những thay đổi về trí nhớ, tư duy hoặc hành vi kéo dài "
-            "và ảnh hưởng đến sinh hoạt, hãy khuyến khích người thân trao đổi "
-            "với bác sĩ hoặc cơ sở y tế. Nhiều tình trạng khác cũng có thể "
-            "gây ra vấn đề về trí nhớ."
-        )
-
-        st.info(
-            "CHẠM Hub cung cấp nội dung giáo dục và nâng cao nhận thức; "
-            "không phải công cụ sàng lọc, chẩn đoán hay điều trị."
-        )
-
-    if st.button("Tôi đã tìm hiểu kiến thức nền tảng", type="primary"):
+    st.write("")
+    if st.button("Đã hoàn thành tìm hiểu Module 1", type="primary"):
         mark_complete("basics")
-        st.success("Đã ghi nhận hoạt động của bạn.")
+        st.success("Tuyệt vời! Tiến trình Module 1 của bạn đã được ghi nhận.")
 
 # ============================================================
 # 8. NÃO BỘ & TRÍ NHỚ
