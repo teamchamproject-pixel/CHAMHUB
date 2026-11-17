@@ -285,7 +285,12 @@ DEFAULTS = {
     "care_revealed": [],
     "care_notes": "",
     "brain_deep_submitted": False,
-    "brain_deep_score": 0
+    "brain_deep_score": 0,
+    "memory_game_score": 0,
+    "memory_game_done": False,
+    "navigation_score": 0,
+    "micro_actions_done": [],
+    "care_branch_history": []
 }
 
 for key, value in DEFAULTS.items():
@@ -527,8 +532,8 @@ div[data-testid="stProgress"] > div > div {
 }
 /* Tăng tương phản chữ phụ và chữ trong các widget */
 [data-testid="stCaptionContainer"] p, .stCaption, .stCaption p {
-    color:#45665d !important;
-    -webkit-text-fill-color:#45665d !important;
+    color:#244b42 !important;
+    -webkit-text-fill-color:#244b42 !important;
     opacity:1 !important;
 }
 [data-testid="stMarkdownContainer"] p,
@@ -1079,14 +1084,11 @@ elif page == "Thư viện tri thức":
             with st.expander("Mở chuyên đề"):
                 for paragraph in item["body"]: st.write(paragraph)
                 st.markdown(f'<div class="quote"><b>Điều cần nhớ:</b> {html.escape(item["takeaway"])}</div>',unsafe_allow_html=True)
-                markdown_text=f"# {item['title']}\n\n**Danh mục:** {item['category']}\n\n{item['summary']}\n\n"+"\n\n".join(item["body"])+f"\n\n## Điều cần nhớ\n\n{item['takeaway']}\n\n---\nTài liệu giáo dục CHẠM Hub. Nội dung không thay thế tư vấn y tế/pháp lý chuyên môn."
-                d1,d2,d3=st.columns(3)
+                d1,d2=st.columns(2)
                 with d1:
-                    st.download_button("⬇ Tải Markdown",data=markdown_text,file_name=f"CHAM_{idx+1:02d}.md",mime="text/markdown",key=f"download_md_{idx}",use_container_width=True)
-                with d2:
                     speech=html.escape(item["title"]+". "+item["summary"]+". "+". ".join(item["body"])+". Điều cần nhớ: "+item["takeaway"])
                     components.html(f'''<button onclick="(function(){{if(!('speechSynthesis' in window)){{alert('Trình duyệt chưa hỗ trợ đọc văn bản.');return;}}speechSynthesis.cancel();var u=new SpeechSynthesisUtterance('{speech}');u.lang='vi-VN';u.rate=0.92;speechSynthesis.speak(u);}})()" style="width:100%;padding:10px;border-radius:9px;border:1px solid #b8d5c8;background:#e8f4ed;color:#164c40;font-weight:700;cursor:pointer">🔊 Nghe bài viết</button>''',height=48)
-                with d3:
+                with d2:
                     if st.button("✓ Đánh dấu đã đọc" if not read else "Đã đọc",key=f"mark_knowledge_v3_{idx}",type="primary" if not read else "secondary",use_container_width=True):
                         if idx not in st.session_state.knowledge_read: st.session_state.knowledge_read.append(idx)
                         mark_complete(f"knowledge_{idx}")
@@ -1118,11 +1120,79 @@ elif page == "Cẩm nang đồng hành":
 
     st.markdown('<div class="quote">Mục tiêu không phải buộc người thân phải nhớ đúng. Mục tiêu là giữ an toàn, giảm căng thẳng và duy trì kết nối.</div>', unsafe_allow_html=True)
 
+    st.subheader("🎭 Mô phỏng hội thoại nhiều bước")
+    st.caption("Chọn phản hồi ở từng lượt, quan sát phản ứng có thể xảy ra rồi quyết định bước tiếp theo. Đây là tình huống học tập minh họa; phản ứng thực tế của mỗi người có thể khác nhau.")
+    branch_cases = {
+        "Từ chối tắm rửa": {
+            "opening":"Người thân lùi lại và nói: ‘Tôi không muốn tắm. Đừng bắt tôi!’",
+            "q1":"Bạn sẽ mở đầu thế nào?",
+            "a1":["A. ‘Có gì đâu mà sợ, phải tắm ngay!’", "B. ‘Con thấy mẹ chưa thoải mái. Mẹ đang thấy lạnh hay lo điều gì ạ?’", "C. Im lặng kéo tay người thân vào phòng tắm."],
+            "best1":1,
+            "responses":[
+                ("Người thân có thể cảm thấy bị thúc ép và phản ứng gay gắt hơn. Hãy dừng lại, tạo khoảng cách an toàn và giảm áp lực.", ["A. Tranh luận rằng việc tắm là bắt buộc.","B. Cho người thân thời gian, làm ấm phòng, chuẩn bị khăn và hỏi họ muốn rửa mặt/tay trước hay tắm sau.","C. Tiếp tục kéo người thân vào phòng tắm."], 1, "Đưa ra lựa chọn nhỏ, chuẩn bị môi trường ấm và an toàn, tôn trọng riêng tư. Có thể chia hoạt động vệ sinh thành nhiều bước."),
+                ("Người thân nói: ‘Phòng tắm lạnh và trơn, tôi sợ ngã’. Bạn đã nhận diện được mối lo cụ thể.", ["A. Kiểm tra nhiệt độ, sàn, tay vịn; giải thích từng bước và hỏi sự đồng ý.","B. Nói rằng không có gì đáng sợ.","C. Bỏ qua nỗi lo và làm thật nhanh."], 0, "Giải quyết nguyên nhân thực tế, phòng ngừa té ngã và giữ quyền lựa chọn cho người thân."),
+                ("Người thân dịu lại nhưng vẫn chưa muốn tắm toàn thân.", ["A. Ép hoàn tất ngay.","B. Chấp nhận làm vệ sinh từng phần phù hợp hôm nay và thử lại lúc khác.","C. Trách móc người thân."], 1, "Linh hoạt, bảo đảm vệ sinh cần thiết và tôn trọng phẩm giá. Nếu có vấn đề da, đau hoặc vệ sinh khó khăn kéo dài, hỏi nhân viên y tế.")
+            ]
+        },
+        "Bồn chồn, đi lại vào buổi tối (Sundowning)": {
+            "opening":"Cuối ngày, người thân liên tục đi qua lại, nói rằng phải đi đón con dù con đã trưởng thành.",
+            "q1":"Bạn phản hồi ra sao?",
+            "a1":["A. ‘Con đã lớn rồi, mẹ nhớ sai rồi!’", "B. ‘Mẹ đang lo cho con. Mình ngồi nghỉ một chút nhé, mẹ có muốn uống nước không?’", "C. Khóa cửa và yêu cầu người thân ngồi yên."],
+            "best1":1,
+            "responses":[
+                ("Người thân có thể cảm thấy bị phủ nhận và lo lắng tăng lên.",["A. Tranh cãi về tuổi của người con.","B. Xác nhận cảm xúc, nói ngắn gọn, giảm tiếng ồn và kiểm tra nhu cầu cơ bản.","C. Bật TV thật lớn để đánh lạc hướng."],1,"Kiểm tra đói, khát, đau, mệt, buồn tiểu, ánh sáng và tiếng ồn; duy trì lịch sinh hoạt dễ đoán."),
+                ("Người thân vẫn đi lại. Bạn nhận thấy phòng hơi tối, TV ồn và người thân chưa ăn nhẹ.",["A. Điều chỉnh ánh sáng, giảm tiếng ồn, đề nghị bữa nhẹ/nước nếu phù hợp và đi cùng trong không gian an toàn.","B. Quát yêu cầu dừng lại.","C. Để người thân tự đi ra ngoài."],0,"Giảm tác nhân gây kích thích, đồng hành khi di chuyển và bảo đảm cửa/lối ra an toàn mà không dùng biện pháp giam giữ nguy hiểm."),
+                ("Tình trạng bồn chồn mới xuất hiện đột ngột, khác hẳn thường ngày.",["A. Mặc định đây là Alzheimer.","B. Ghi nhận thay đổi và liên hệ nhân viên y tế để đánh giá nguyên nhân như đau, nhiễm trùng hoặc tác dụng thuốc.","C. Tự ý cho dùng thuốc an thần."],1,"Thay đổi hành vi đột ngột cần được đánh giá y tế; không tự ý dùng hoặc đổi thuốc. Nếu có nguy cơ cấp cứu, tìm trợ giúp khẩn cấp.")
+            ]
+        },
+        "Nghi ngờ người khác lấy/cất giấu đồ": {
+            "opening":"Người thân nói: ‘Ai đó lấy ví của tôi rồi!’ và bắt đầu tức giận.",
+            "q1":"Bạn nên nói gì trước?",
+            "a1":["A. ‘Không ai lấy cả, mẹ lại tưởng tượng rồi!’", "B. ‘Con thấy mẹ đang rất lo. Mình cùng tìm chiếc ví nhé.’", "C. Buộc người thân nhận rằng họ đã để quên."],
+            "best1":1,
+            "responses":[
+                ("Người thân có thể cảm thấy bị xem nhẹ hoặc bị buộc tội.",["A. Tranh luận để chứng minh họ sai.","B. Thừa nhận cảm xúc, cùng tìm ở những nơi quen thuộc và giữ giọng bình tĩnh.","C. Đe dọa sẽ không cho dùng ví nữa."],1,"Không đối đầu hay chế giễu; cùng tìm kiếm có hệ thống và trấn an cảm xúc."),
+                ("Hai người chưa tìm thấy ví. Người thân càng sốt ruột.",["A. Chuyển hướng nhẹ nhàng sang việc bình tâm, sau đó kiểm tra lại các vị trí cố định.","B. Nói ‘mẹ lúc nào cũng làm mất đồ’.","C. Lục soát đồ đạc của người thân trước mặt mọi người."],0,"Tạo nơi cất đồ cố định, nhãn dễ nhận biết và bản sao/biện pháp bảo quản phù hợp; tránh làm người thân xấu hổ."),
+                ("Tình huống lặp lại nhiều lần và gây xung đột trong gia đình.",["A. Ghi nhận thời điểm, món đồ và yếu tố kích hoạt; trao đổi với người chăm sóc và chuyên gia khi cần.","B. Mặc định người thân cố tình nói dối.","C. Tranh cãi mỗi lần xảy ra."],0,"Theo dõi mẫu hành vi, giảm thất lạc bằng thói quen sắp xếp; tìm tư vấn nếu nghi ngờ, sợ hãi hoặc kích động kéo dài.")
+            ]
+        }
+    }
+    selected_branch = st.selectbox("Chọn kịch bản", list(branch_cases.keys()), key="branch_case_v3")
+    case = branch_cases[selected_branch]
+    st.markdown(f'<div class="panel"><span class="tag">HỘI THOẠI · NGƯỜI THÂN</span><p><b>Người thân:</b> {html.escape(case["opening"])}</p></div>', unsafe_allow_html=True)
+    first = st.radio(case["q1"], case["a1"], key=f"branch_first_{selected_branch}", index=None)
+    if first is not None:
+        first_index = case["a1"].index(first)
+        if first_index == case["best1"]:
+            st.success("Phản hồi mở đầu phù hợp: ưu tiên cảm xúc, bình tĩnh và tôn trọng.")
+        else:
+            st.warning("Lựa chọn này có thể làm căng thẳng tăng lên. Hãy cân nhắc cách phản hồi ít đối đầu hơn.")
+        st.markdown('<div class="panel"><b>Người thân:</b> ' + html.escape(case["responses"][first_index][0] if first_index < len(case["responses"]) else case["responses"][0][0]) + '</div>', unsafe_allow_html=True)
+        # Each opening choice leads to the corresponding next turn; the branches are illustrative.
+        branch_response = case["responses"][first_index if first_index < len(case["responses"]) else 0]
+        st.markdown("**Lượt tiếp theo – Người chăm sóc:** " + branch_response[0])
+        second = st.radio("Bạn sẽ làm gì tiếp theo?", branch_response[1], key=f"branch_second_{selected_branch}_{first_index}", index=None)
+        if second is not None:
+            second_index = branch_response[1].index(second)
+            st.markdown('<div class="panel"><b>Phản hồi có thể xảy ra:</b><p>' + html.escape(branch_response[0]) + '</p></div>', unsafe_allow_html=True)
+            if second_index == branch_response[2]:
+                st.success("Đây là hướng xử lý phù hợp hơn. " + branch_response[3])
+            else:
+                st.warning("Hãy thử đặt sự an toàn, cảm xúc và quyền lựa chọn của người thân lên trước. " + branch_response[3])
+            third = st.radio("Bước tiếp theo bạn muốn chọn?", ["Tiếp tục theo hướng tôn trọng và an toàn", "Dừng lại, quan sát và thử lại sau", "Xin hỗ trợ từ thành viên gia đình/chuyên gia"], key=f"branch_third_{selected_branch}_{first_index}", index=None)
+            if third:
+                st.info("Gợi ý: " + branch_response[3])
+                if st.button("Ghi nhận đã thực hành kịch bản", key=f"branch_done_{selected_branch}"):
+                    st.session_state.care_branch_history.append(selected_branch)
+                    st.success("Đã ghi nhận kịch bản trong phiên này.")
+
+    st.divider()
     extra_scenarios = [
         {"title":"Người thân muốn về nhà dù đang ở nhà", "situation":"Người thân đứng dậy, lo lắng và nói: “Tôi phải về nhà thôi”.", "options":[("A","Tranh luận rằng đây chính là nhà của họ."),("B","Bình tĩnh hỏi điều gì đang khiến họ lo lắng, trấn an và thử chuyển sang hoạt động quen thuộc."),("C","Quát lớn để họ ngồi xuống.")], "best":"B", "explain":"Cảm giác muốn về nhà có thể gắn với lo lắng hoặc nhu cầu tìm sự an toàn. Hãy lắng nghe cảm xúc, trấn an và đánh giá xem có nguy cơ an toàn nào cần xử lý."},
         {"title":"Người thân từ chối tắm", "situation":"Đến giờ vệ sinh cá nhân, người thân tỏ ra khó chịu và không muốn vào phòng tắm.", "options":[("A","Ép buộc ngay lập tức."),("B","Bỏ mặc hoàn toàn dù vệ sinh đang ảnh hưởng sức khỏe."),("C","Tìm hiểu nguyên nhân, giải thích từng bước, giữ riêng tư và cho họ lựa chọn phù hợp.")], "best":"C", "explain":"Có thể người thân thấy lạnh, sợ trượt ngã, xấu hổ hoặc chưa hiểu việc sắp diễn ra. Tôn trọng riêng tư, chuẩn bị môi trường an toàn và chia nhỏ thao tác."},
         {"title":"Người thân đi lại bồn chồn vào buổi chiều", "situation":"Cuối ngày, người thân liên tục đi quanh nhà và khó ngồi yên.", "options":[("A","La mắng và yêu cầu ngồi im."),("B","Quan sát yếu tố gây khó chịu, kiểm tra nhu cầu cơ bản và tạo hoạt động nhẹ nhàng trong không gian an toàn."),("C","Khóa họ một mình trong phòng.")], "best":"B", "explain":"Hãy kiểm tra đói, khát, đau, mệt, nhu cầu đi vệ sinh, tiếng ồn hoặc thay đổi môi trường. Nếu hành vi mới xuất hiện đột ngột hoặc bất thường, cần trao đổi với nhân viên y tế."},
-        {"title":"Người thân quên uống thuốc", "situation":"Bạn nhận ra người thân không chắc mình đã uống thuốc hay chưa.", "options":[("A","Cho uống bù ngay để chắc chắn."),("B","Tự ý thay đổi liều."),("C","Kiểm tra lịch/khay thuốc và liên hệ người phụ trách hoặc nhân viên y tế để được hướng dẫn; không tự cho uống thêm khi chưa rõ.")], "best":"C", "explain":"Dùng thuốc cần tuân theo hướng dẫn chuyên môn. Không tự ý tăng, giảm hoặc uống bù liều khi chưa xác minh; có thể dùng hộp chia thuốc và lịch nhắc do gia đình thống nhất."}
+        {"title":"Người thân quên uống thuốc", "situation":"Bạn nhận ra người thân không chắc mình đã uống thuốc hay chưa.", "options":[("A","Cho uống bù ngay để chắc chắn."),("B","Tự ý thay đổi liều."),("C","Kiểm tra lịch/khay thuốc và liên hệ người phụ trách hoặc nhân viên y tế để được hướng dẫn; không tự cho uống thêm khi chưa rõ.")], "best":"C", "explain":"Dùng thuốc cần tuân theo hướng dẫn chuyên môn. Không tự ý tăng, giảm hoặc uống bù liều khi chưa xác minh; có thể dùng hộp chia thuốc và lịch nhắc do gia đình thống nhất."},
+        {"title":"Nghi ngờ người khác lấy đồ", "situation":"Người thân khẳng định ai đó đã lấy chiếc ví dù ví có thể đã được cất ở nơi khác.", "options":[("A","Tranh cãi và nói họ tưởng tượng."),("B","Lắng nghe nỗi lo, cùng tìm ở vị trí quen thuộc và tránh buộc tội."),("C","Chế giễu để họ quên chuyện đó.")], "best":"B", "explain":"Xác nhận cảm xúc thay vì tranh luận đúng sai; thiết lập vị trí cất đồ cố định và ghi nhận nếu tình trạng lặp lại."}
     ]
     all_scenarios = CARE_SCENARIOS + extra_scenarios
     st.markdown("### Bộ tình huống thực hành")
@@ -1195,9 +1265,11 @@ elif page == "Trạm trải nghiệm":
         "Học qua câu hỏi, lựa chọn và phản hồi tức thì."
     )
 
-    tab_quiz, tab_cards = st.tabs([
+    tab_quiz, tab_cards, tab_memory, tab_board = st.tabs([
         "🧠 Thử thách kiến thức",
-        "🃏 Thẻ suy ngẫm"
+        "🃏 Thẻ suy ngẫm",
+        "🧩 Phòng thí nghiệm trí nhớ",
+        "🏆 Bảng thành tích"
     ])
 
     # ----- QUIZ -----
@@ -1314,6 +1386,61 @@ elif page == "Trạm trải nghiệm":
                 unsafe_allow_html=True
             )
 
+    # ----- MINI GAME: GHÉP CẶP KÝ ỨC -----
+    with tab_memory:
+        st.markdown("### 🧩 Thử thách ghép cặp thông tin")
+        st.write("Hãy ghép gợi ý với thông tin tương ứng. Đây là trò chơi học tập mô phỏng việc truy xuất thông tin, **không tái hiện cảm giác hay mức độ suy giảm trí nhớ của người mắc Alzheimer**.")
+        pairs = [("Ảnh gia đình", "Kỷ niệm"), ("Chìa khóa", "Mở cửa"), ("Lịch treo tường", "Ngày tháng"), ("Bản đồ", "Định hướng")]
+        labels = [p[0] for p in pairs]
+        answers = [p[1] for p in pairs]
+        left_col, right_col = st.columns(2)
+        chosen_pairs=[]
+        for j, label in enumerate(labels):
+            with left_col:
+                st.markdown(f"**{j+1}. {label}**")
+            with right_col:
+                chosen=st.selectbox(f"Ghép với", ["— Chọn —"]+answers, key=f"memory_pair_v3_{j}", label_visibility="collapsed")
+                chosen_pairs.append(chosen)
+        if st.button("Kiểm tra ghép cặp", key="memory_match_check_v3", type="primary"):
+            if "— Chọn —" in chosen_pairs:
+                st.warning("Hãy hoàn thành cả bốn cặp trước khi kiểm tra.")
+            else:
+                points=sum(chosen_pairs[j]==answers[j] for j in range(len(pairs)))
+                st.session_state.memory_game_score=points
+                st.session_state.memory_game_done=True
+                if points==len(pairs):
+                    st.balloons(); st.success(f"🎉 Hoàn hảo! {points}/4 cặp chính xác.")
+                else:
+                    st.info(f"Bạn ghép đúng {points}/4 cặp. Hãy xem lại và thử lần nữa.")
+        if st.session_state.memory_game_done:
+            st.metric("Kết quả gần nhất", f"{st.session_state.memory_game_score}/4")
+            if st.button("Chơi lại trò ghép cặp", key="memory_match_reset_v3"):
+                for j in range(4): st.session_state.pop(f"memory_pair_v3_{j}", None)
+                st.session_state.memory_game_done=False
+                st.rerun()
+
+        st.divider()
+        st.markdown("### 🧭 Thử thách định hướng")
+        st.write("Bạn đang ở **Sảnh**. Hãy chọn đường đi để đến **Thư viện** theo sơ đồ đơn giản dưới đây.")
+        st.markdown('<div class="panel" style="text-align:center"><b>🏠 Sảnh</b><br>↓<br><b>🪴 Vườn</b>　↔　🚪 Cổng<br>↓　　　　　↓<br><b>📚 Thư viện</b>　　🚌 Trạm xe</div>', unsafe_allow_html=True)
+        route=st.radio("Lộ trình nào đến Thư viện?", ["Sảnh → Vườn → Thư viện", "Sảnh → Cổng → Trạm xe", "Sảnh → Trạm xe → Vườn"], key="navigation_route_v3", index=None)
+        if st.button("Kiểm tra lộ trình", key="navigation_check_v3"):
+            if route is None: st.warning("Hãy chọn một lộ trình.")
+            elif route.startswith("Sảnh → Vườn"):
+                st.session_state.navigation_score += 1
+                st.balloons(); st.success("Đúng rồi! Bạn đã đến Thư viện.")
+            else: st.warning("Lộ trình này chưa đến Thư viện. Hãy quan sát lại sơ đồ.")
+        st.caption("Các thử thách không phải công cụ sàng lọc, chẩn đoán hoặc đo lường trí nhớ.")
+
+    with tab_board:
+        st.markdown("### 🏆 Thành tích trong phiên")
+        achievements=[("Kiến thức",st.session_state.quiz_score,f"/{len(QUIZ)} câu đúng"),("Ghép cặp trí nhớ",st.session_state.memory_game_score,"/4 cặp"),("Định hướng",st.session_state.navigation_score," lượt tìm đúng đường"),("Kịch bản đồng hành",len(set(st.session_state.care_branch_history))," kịch bản đã thực hành")]
+        for name,value,suffix in achievements:
+            st.metric(name, f"{value}{suffix}")
+        st.caption("Bảng thành tích chỉ lưu trong phiên trình duyệt hiện tại, không phải bảng xếp hạng công khai giữa các người dùng.")
+        if st.session_state.quiz_index>=len(QUIZ) and st.session_state.quiz_score==len(QUIZ):
+            st.success("🏅 Huy hiệu: Người khám phá tri thức")
+
 # ============================================================
 # 12. HÀNH TRÌNH THẤU CẢM
 # ============================================================
@@ -1331,6 +1458,26 @@ elif page == "Hành trình thấu cảm":
         'điều gì. Thấu cảm còn là điều chỉnh cách ta hiện diện bên cạnh họ.</div>',
         unsafe_allow_html=True
     )
+
+    st.subheader("🌱 Sổ tay cam kết – Hành động nhỏ mỗi ngày")
+    micro_actions = [
+        "Hôm nay tôi sẽ lắng nghe trọn vẹn 5 phút mà không ngắt lời.",
+        "Tôi sẽ nói chậm, dùng câu ngắn và cho người thân thêm thời gian phản hồi.",
+        "Tôi sẽ hỏi người thân muốn lựa chọn nào thay vì ra lệnh.",
+        "Tôi sẽ cùng gia đình kiểm tra một nguy cơ mất an toàn trong nhà.",
+        "Tôi sẽ dành một khoảnh khắc cùng người thân nghe nhạc hoặc xem ảnh quen thuộc.",
+        "Tôi sẽ chia sẻ một phần việc chăm sóc để người chăm sóc chính được nghỉ ngơi.",
+        "Tôi sẽ tìm hiểu thêm một kiến thức đáng tin cậy về Alzheimer."
+    ]
+    st.caption("Chọn những việc nhỏ, cụ thể và có thể thực hiện. Bạn có thể thay đổi cam kết theo hoàn cảnh thực tế.")
+    for i, action in enumerate(micro_actions):
+        checked_action=st.checkbox(action, key=f"micro_action_{i}", value=i in st.session_state.micro_actions_done)
+        if checked_action and i not in st.session_state.micro_actions_done:
+            st.session_state.micro_actions_done.append(i)
+        elif not checked_action and i in st.session_state.micro_actions_done:
+            st.session_state.micro_actions_done.remove(i)
+    st.progress(len(st.session_state.micro_actions_done)/len(micro_actions))
+    st.caption(f"Đã chọn {len(st.session_state.micro_actions_done)}/{len(micro_actions)} cam kết.")
 
     st.subheader("Viết một lời nhắn cho chính mình")
 
@@ -1383,6 +1530,22 @@ elif page == "Hành trình thấu cảm":
                 f"Suy ngẫm {i}: {entry['prompt']}"
             ):
                 st.write(entry["text"])
+
+    if st.button("📄 Tạo bản tổng kết hành trình", key="create_empathy_summary_v3", type="primary"):
+        selected_names=[micro_actions[i] for i in st.session_state.micro_actions_done if i < len(micro_actions)]
+        journal_lines=[]
+        for n,entry in enumerate(st.session_state.journal,1):
+            journal_lines.append(f"{n}. {entry['prompt']}\n{entry['text']}")
+        summary=("CHẠM HUB – TỔNG KẾT HÀNH TRÌNH THẤU CẢM\n"
+                 "==========================================\n\n"
+                 f"Cam kết đã chọn ({len(selected_names)}):\n"+
+                 ("\n".join(f"- {x}" for x in selected_names) if selected_names else "- Chưa chọn cam kết nào.")+
+                 "\n\nNHẬT KÝ SUY NGẪM\n"+
+                 ("\n\n".join(journal_lines) if journal_lines else "Chưa có nội dung nhật ký.")+
+                 "\n\nTiến trình học tập: "+", ".join(st.session_state.completed)+
+                 "\n\nCHẠM – Thấu hiểu để kết nối, kết nối để sẻ chia.\n"
+                 "Tài liệu cá nhân được tạo từ dữ liệu trong phiên hiện tại.")
+        st.download_button("⬇ Tải bản tổng kết (.txt)", data=summary, file_name="CHAM_Hanh_trinh_thau_cam.txt", mime="text/plain", key="download_empathy_summary_v3")
 
     st.caption(
         "Nhật ký hiện được lưu trong phiên sử dụng hiện tại; "
