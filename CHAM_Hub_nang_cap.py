@@ -1,4 +1,3 @@
-
 from pathlib import Path
 import random
 import html
@@ -16,8 +15,8 @@ st.set_page_config(
 )
 
 BASE_DIR = Path(__file__).parent
-ASSET_DIR = BASE_DIR / "assets"
-LOGO_PATH = ASSET_DIR / "logo_cham.png"
+# Trỏ trực tiếp đến logo nằm ở thư mục gốc của GitHub
+LOGO_PATH = BASE_DIR / "logo_cham.png"
 
 # =========================================================
 # 2. DỮ LIỆU VÀ TRẠNG THÁI
@@ -722,9 +721,8 @@ if page == "Trang chủ":
     một môi trường sống nhân văn hơn.
     """)
 
-    if st.button("Bắt đầu khám phá →", type="primary"):
-        st.session_state.main_navigation = "Khám phá Alzheimer"
-        st.rerun()
+    # Sửa lỗi StreamlitWidgetAlreadyInstantiatedError bằng cách dùng thông báo hướng dẫn hoặc loại bỏ gán trực tiếp state widget
+    st.info("👈 Hãy chọn chuyên mục ở menu bên trái (Sidebar) để bắt đầu hành trình khám phá!")
 
 
 # =========================================================
@@ -902,7 +900,7 @@ elif page == "Não bộ và trí nhớ":
     st.subheader("Tại sao ký ức có thể bị ảnh hưởng?")
 
     st.write("""
-    Trong Alzheimer, những thay đổi bệnh lý trong não có thể ảnh hưởng
+    Trong Alzheimer, những thay đổi bệnh lý trong neuro có thể ảnh hưởng
     đến tế bào thần kinh, sự truyền tín hiệu và hoạt động của các mạng
     lưới liên quan đến trí nhớ.
 
