@@ -270,6 +270,7 @@ DEFAULTS = {
     "intro_done": False,
     "journal": [],
     "community": [],
+    "community_filter": "Tất cả chủ đề",
     "completed": [],
     "quiz_index": 0,
     "quiz_score": 0,
@@ -1559,133 +1560,196 @@ elif page == "Hành trình thấu cảm":
 elif page == "Không gian sẻ chia":
 
     section_header(
-        "07 / COMMUNITY",
+        "07 / COMMUNITY WALL",
         "Không gian sẻ chia",
-        "Một góc nhỏ để gửi đi thông điệp tích cực và lời động viên."
+        "Mỗi lời nhắn là một điểm chạm tử tế. Hãy gửi đi sự động viên, sẻ chia và những hành động nhỏ."
     )
 
-    st.info(
-        "Bản hiện tại lưu bài viết trong phiên Streamlit đang hoạt động. "
-        "Để nhiều người dùng nhìn thấy bài đăng chung, cần tích hợp "
-        "cơ sở dữ liệu hoặc dịch vụ backend."
-    )
+    st.markdown("""
+    <div class="panel" style="background:linear-gradient(135deg,#fff8e8,#f0faf5);border:1px solid #ead9ad;">
+      <div style="font-size:30px">💌 🌿 🤝</div>
+      <h3 style="color:#14594d;margin-bottom:6px">Wall of Kindness – Bức tường tử tế</h3>
+      <p style="color:#365b53;margin:0">Một lời động viên không cần dài. Một hành động nhỏ cũng có thể làm hành trình chăm sóc bớt đơn độc.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-    with st.form("share_form", clear_on_submit=True):
+    topic_labels = ["#LờiĐộngViên", "#GócChiaSẻ", "#HànhĐộngNhỏ"]
 
+    with st.form("share_form_v4", clear_on_submit=True):
         nickname = st.text_input(
             "Tên hiển thị (không bắt buộc)",
             placeholder="Ví dụ: Một người bạn"
         )
-
+        topic = st.selectbox("Chọn chủ đề thông điệp", topic_labels, index=0)
         message = st.text_area(
-            "Thông điệp bạn muốn chia sẻ",
-            placeholder="Một lời động viên, một điều bạn học được hoặc một hành động nhỏ…",
+            "Thông điệp bạn muốn gửi đến cộng đồng",
+            placeholder="Hãy viết một lời động viên, một trải nghiệm hoặc một hành động tử tế…",
             height=120
         )
-
-        submitted = st.form_submit_button(
-            "Gửi thông điệp",
-            type="primary"
-        )
-
+        submitted = st.form_submit_button("💌 Gửi lời nhắn", type="primary", use_container_width=True)
         if submitted:
-
             if len(message.strip()) < 5:
-
                 st.warning("Thông điệp cần ít nhất 5 ký tự.")
-
             else:
-
-                st.session_state.community.insert(
-                    0,
-                    {
-                        "name": nickname.strip() or "Một người bạn",
-                        "message": message.strip()
-                    }
-                )
-
-                st.success(
-                    "Thông điệp đã được thêm vào không gian sẻ chia của phiên này."
-                )
+                st.session_state.community.insert(0, {
+                    "name": nickname.strip() or "Một người bạn",
+                    "message": message.strip(),
+                    "topic": topic
+                })
+                st.success("Lời nhắn đã được thêm vào bức tường tử tế trong phiên này.")
 
     st.divider()
+    st.subheader("🌼 Bảng tin cộng đồng")
+    filter_options = ["Tất cả chủ đề"] + topic_labels
+    selected_filter = st.selectbox(
+        "Lọc lời nhắn theo chủ đề",
+        filter_options,
+        key="community_filter_v4"
+    )
+    visible_posts = [
+        post for post in st.session_state.community
+        if selected_filter == "Tất cả chủ đề" or post.get("topic", "#LờiĐộngViên") == selected_filter
+    ]
 
-    st.subheader("Những lời nhắn được gửi đi")
+    count_a, count_b = st.columns(2)
+    count_a.metric("Lời nhắn trong phiên", len(st.session_state.community))
+    count_b.metric("Đang hiển thị", len(visible_posts))
 
-    if not st.session_state.community:
-
+    if not visible_posts:
         st.markdown(
-            '<div class="panel"><h3>🌱 Hãy là người gửi lời nhắn đầu tiên</h3>'
-            '<p class="muted">Một câu nói tử tế cũng có thể mở đầu cho sự kết nối.</p></div>',
+            '<div class="panel" style="text-align:center;background:#f3faf6;">'
+            '<div style="font-size:34px">🌱</div>'
+            '<h3 style="color:#14594d">Hãy là người gửi lời nhắn đầu tiên</h3>'
+            '<p style="color:#55746c">Một câu nói tử tế cũng có thể mở đầu cho sự kết nối.</p>'
+            '</div>',
             unsafe_allow_html=True
         )
-
     else:
-
-        for post in st.session_state.community:
-
-            safe_message = html.escape(post["message"])
-            safe_name = html.escape(post["name"])
-
+        for post_index, post in enumerate(visible_posts):
+            safe_message = html.escape(post.get("message", ""))
+            safe_name = html.escape(post.get("name", "Một người bạn"))
+            safe_topic = html.escape(post.get("topic", "#LờiĐộngViên"))
+            palette = ["#fff8e8", "#eff8f3", "#f4f1fb", "#fff1ed"]
+            card_bg = palette[post_index % len(palette)]
             st.markdown(
-                f'<div class="panel">'
-                f'<span class="tag">LỜI NHẮN TỪ CỘNG ĐỒNG</span>'
-                f'<p>{safe_message}</p>'
-                f'<b>— {safe_name}</b>'
-                f'</div><div style="height:10px"></div>',
+                f'<div style="background:{card_bg};border:1px solid #e8e2d2;'
+                f'border-radius:18px;padding:20px 22px;margin:10px 0;'
+                f'box-shadow:0 5px 18px rgba(24,70,58,.06);">'
+                f'<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">'
+                f'<span style="background:#e3efe8;color:#14594d;border-radius:30px;padding:5px 12px;font-size:12px;font-weight:700;">{safe_topic}</span>'
+                f'<span style="color:#9a8051;font-size:20px">✦</span></div>'
+                f'<p style="font-size:17px;line-height:1.7;color:#294b43;margin:16px 0;">“{safe_message}”</p>'
+                f'<div style="text-align:right;color:#537168;font-weight:700;">— {safe_name}</div>'
+                f'</div>',
                 unsafe_allow_html=True
             )
 
+    st.caption(
+        "Quyền riêng tư: lời nhắn hiện chỉ được lưu trong phiên Streamlit đang hoạt động. "
+        "Muốn tạo bảng tin dùng chung giữa nhiều người, cần kết nối cơ sở dữ liệu và bổ sung kiểm duyệt nội dung."
+    )
+
 # ============================================================
-# 14. NGUỒN THAM KHẢO
+# 14. NGUỒN THAM KHẢO & KẾT NỐI HỖ TRỢ
 # ============================================================
 
 elif page == "Nguồn tham khảo":
 
     section_header(
-        "08 / REFERENCES",
-        "Nguồn tham khảo",
-        "Các nguồn dưới đây là điểm bắt đầu để tìm hiểu sâu hơn. "
-        "Hãy ưu tiên hướng dẫn từ cơ quan y tế và tổ chức chuyên môn."
+        "08 / REFERENCES & SUPPORT",
+        "Nguồn tham khảo & Kết nối chuyên gia",
+        "Tra cứu tài liệu chuyên môn và thông tin liên hệ cơ sở y tế. Vui lòng xác nhận lại số điện thoại, lịch khám và chuyên khoa trước khi đến."
     )
 
-    refs = [
-        (
-            "World Health Organization (WHO) – Dementia",
-            "Thông tin tổng quan về sa sút trí tuệ, tác động và ứng phó y tế công cộng.",
-            "https://www.who.int/news-room/fact-sheets/detail/dementia"
-        ),
-        (
-            "Alzheimer's Association",
-            "Tài liệu giáo dục về bệnh Alzheimer, dấu hiệu, chăm sóc và hỗ trợ gia đình.",
-            "https://www.alz.org/"
-        ),
-        (
-            "National Institute on Aging (NIA)",
-            "Thông tin khoa học và hướng dẫn dành cho cộng đồng về Alzheimer và sức khỏe não bộ.",
-            "https://www.nia.nih.gov/health/alzheimers"
-        ),
-        (
-            "NHS – Dementia",
-            "Thông tin sức khỏe cộng đồng về sa sút trí tuệ và các vấn đề liên quan.",
-            "https://www.nhs.uk/conditions/dementia/"
-        )
+    st.subheader("🏥 Danh bạ cơ sở y tế tại Việt Nam")
+    st.info(
+        "Các bệnh viện dưới đây là đầu mối để gia đình liên hệ hỏi về khám thần kinh, lão khoa hoặc đánh giá suy giảm trí nhớ. "
+        "Danh sách không phải bảng xếp hạng và không thay thế việc lựa chọn cơ sở phù hợp theo nơi ở, tình trạng và hướng dẫn chuyển tuyến."
+    )
+
+    hospitals = [
+        {
+            "name": "Bệnh viện Đại học Y Dược TP. Hồ Chí Minh – Cơ sở 1",
+            "area": "TP. Hồ Chí Minh",
+            "address": "215 Hồng Bàng, Phường Chợ Lớn, TP. Hồ Chí Minh",
+            "phone": "(028) 3855 4269",
+            "tel": "+842838554269",
+            "website": "https://bvdaihoc.com.vn/",
+            "map": "https://www.google.com/maps/search/?api=1&query=215+Hong+Bang+Cho+Lon+Ho+Chi+Minh",
+            "note": "Liên hệ tổng đài bệnh viện để hỏi lịch khám phù hợp và hướng dẫn đến chuyên khoa liên quan."
+        },
+        {
+            "name": "Bệnh viện Chợ Rẫy",
+            "area": "TP. Hồ Chí Minh",
+            "address": "201B Nguyễn Chí Thanh, Phường Chợ Lớn, TP. Hồ Chí Minh",
+            "phone": "(028) 3855 4137",
+            "tel": "+842838554137",
+            "website": "https://bvchoray.vn/",
+            "map": "https://www.google.com/maps/search/?api=1&query=Benh+vien+Cho+Ray+201B+Nguyen+Chi+Thanh+Ho+Chi+Minh",
+            "note": "Gọi bệnh viện để xác nhận quy trình đăng ký khám và đơn vị tiếp nhận vấn đề thần kinh/trí nhớ."
+        },
+        {
+            "name": "Bệnh viện Lão khoa Trung ương",
+            "area": "Hà Nội",
+            "address": "1A Phương Mai, Phường Kim Liên, TP. Hà Nội",
+            "phone": "024 3576 4558",
+            "tel": "+842435764558",
+            "website": "https://benhvienlaokhoa.vn/",
+            "map": "https://www.google.com/maps/search/?api=1&query=Benh+vien+Lao+khoa+Trung+uong+1A+Phuong+Mai+Ha+Noi",
+            "note": "Bệnh viện chuyên khoa lão khoa; liên hệ trước để hỏi lịch khám và dịch vụ phù hợp."
+        }
     ]
 
-    for title, desc, url in refs:
-
+    for h in hospitals:
         st.markdown(
-            f'<div class="panel">'
-            f'<h3>{html.escape(title)}</h3>'
-            f'<p class="muted">{html.escape(desc)}</p>'
-            f'<a href="{url}" target="_blank" rel="noopener noreferrer">{url}</a>'
+            f'<div class="panel" style="border-left:5px solid #d9b968;">'
+            f'<div style="color:#a17c32;font-size:12px;font-weight:800;letter-spacing:.08em">{html.escape(h["area"])}</div>'
+            f'<h3 style="color:#14594d;margin:7px 0 10px">🏥 {html.escape(h["name"])}</h3>'
+            f'<p style="color:#365b53;margin:5px 0"><b>Địa chỉ:</b> {html.escape(h["address"])}</p>'
+            f'<p style="color:#365b53;margin:5px 0"><b>Điện thoại:</b> {html.escape(h["phone"])}</p>'
+            f'<p style="color:#557168;margin:8px 0">{html.escape(h["note"])}</p>'
+            f'<a href="tel:{h["tel"]}" style="display:inline-block;background:#0d6657;color:white;padding:9px 15px;border-radius:9px;text-decoration:none;font-weight:700;margin:5px 6px 4px 0">☎ Gọi điện</a>'
+            f'<a href="{h["map"]}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#eaf3ee;color:#14594d;padding:9px 15px;border-radius:9px;text-decoration:none;font-weight:700;margin:5px 6px 4px 0">📍 Chỉ đường</a>'
+            f'<a href="{h["website"]}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#f5f0e3;color:#725b2d;padding:9px 15px;border-radius:9px;text-decoration:none;font-weight:700;margin:5px 0 4px">🌐 Website chính thức</a>'
             f'</div><div style="height:10px"></div>',
             unsafe_allow_html=True
         )
 
+    st.subheader("☎️ Hỗ trợ khẩn cấp và hỗ trợ cộng đồng")
+    st.markdown("""
+    <div class="panel" style="background:#fff3ef;border-left:5px solid #d96b55;">
+      <h3 style="color:#9e392b">115 – Cấp cứu y tế</h3>
+      <p style="color:#573b35">Dành cho tình huống cấp cứu y tế cần hỗ trợ khẩn cấp. Nếu người bệnh đột ngột lú lẫn, yếu liệt, méo miệng, khó nói, co giật, bất tỉnh hoặc có nguy cơ tức thời, hãy gọi cấp cứu hoặc đến khoa Cấp cứu gần nhất.</p>
+      <a href="tel:115" style="display:inline-block;background:#b84635;color:white;padding:10px 18px;border-radius:9px;text-decoration:none;font-weight:800">☎ Gọi 115</a>
+    </div>
+    <div class="panel" style="background:#f0f8f3;">
+      <h3 style="color:#14594d">Kết nối hỗ trợ tâm lý – xã hội</h3>
+      <p style="color:#365b53">Với căng thẳng kéo dài, kiệt sức khi chăm sóc hoặc cần hỗ trợ tâm lý, gia đình có thể trao đổi với khoa Tâm thần/Tâm lý lâm sàng tại bệnh viện đa khoa, cơ sở sức khỏe tâm thần công lập hoặc nhân viên y tế địa phương để được hướng dẫn phù hợp.</p>
+      <p style="color:#365b53"><b>Lưu ý:</b> CHẠM Hub chưa xác minh được một đường dây nóng tư vấn tâm lý toàn quốc chuyên biệt, chính thức và đang hoạt động thường trực dành riêng cho mọi đối tượng. Không nên dùng các số tổng đài không rõ nguồn gốc.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.caption("Thông tin liên hệ được tổng hợp từ website chính thức của các bệnh viện và cổng thông tin cơ quan nhà nước. Số điện thoại, địa chỉ, lịch khám có thể thay đổi; hãy kiểm tra lại trước khi sử dụng.")
+
+    st.divider()
+    st.subheader("🌐 Thư viện nguồn tham khảo quốc tế")
+    refs = [
+        ("World Health Organization (WHO) – Dementia", "Thông tin tổng quan về sa sút trí tuệ và ứng phó y tế công cộng.", "https://www.who.int/news-room/fact-sheets/detail/dementia"),
+        ("Alzheimer's Association", "Tài liệu giáo dục về Alzheimer, dấu hiệu, chăm sóc và hỗ trợ gia đình.", "https://www.alz.org/"),
+        ("National Institute on Aging (NIA)", "Thông tin khoa học và hướng dẫn cộng đồng về Alzheimer và sức khỏe não bộ.", "https://www.nia.nih.gov/health/alzheimers"),
+        ("NHS – Dementia", "Thông tin sức khỏe cộng đồng về sa sút trí tuệ và các vấn đề liên quan.", "https://www.nhs.uk/conditions/dementia/")
+    ]
+    for title, desc, url in refs:
+        st.markdown(
+            f'<div class="panel"><h3 style="color:#14594d">{html.escape(title)}</h3>'
+            f'<p class="muted">{html.escape(desc)}</p>'
+            f'<a href="{url}" target="_blank" rel="noopener noreferrer">Mở nguồn chính thức ↗</a></div><div style="height:8px"></div>',
+            unsafe_allow_html=True
+        )
+
     st.warning(
-        "Nội dung CHẠM Hub mang tính giáo dục, không thay thế tư vấn y tế. "
-        "Khi có dấu hiệu đáng lo ngại, hãy tìm đến nhân viên y tế."
+        "CHẠM Hub là nền tảng giáo dục và nâng cao nhận thức, không chẩn đoán, không kê đơn và không thay thế tư vấn y tế. "
+        "Khi có thay đổi đáng lo ngại về trí nhớ hoặc hành vi, hãy đưa người thân đến cơ sở y tế để được đánh giá."
     )
 
 # ============================================================
