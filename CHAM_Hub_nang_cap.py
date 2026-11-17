@@ -1,4 +1,3 @@
-
 from pathlib import Path
 import random
 import html
@@ -16,7 +15,7 @@ LOGO_PATH = ASSET_DIR / "logo_cham.png"
 
 st.set_page_config(
     page_title="CHẠM Hub | Thấu hiểu để kết nối",
-    page_icon="🪷",
+    page_icon="🤝",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -246,7 +245,7 @@ def render_logo(width=130):
     if LOGO_PATH.exists():
         st.image(str(LOGO_PATH), width=width)
     else:
-        st.markdown('<div class="brand-mark">🪷 <b>CHẠM</b></div>', unsafe_allow_html=True)
+        st.markdown('<div class="brand-mark">🤝 <b>CHẠM</b></div>', unsafe_allow_html=True)
 
 def section_header(eyebrow, title, subtitle=None):
     st.markdown(
@@ -260,7 +259,7 @@ def section_header(eyebrow, title, subtitle=None):
 def render_footer():
     st.markdown("""
     <div class="footer">
-      <div class="footer-brand">🪷 CHẠM HUB</div>
+      <div class="footer-brand">🤝 CHẠM HUB</div>
       <div>Thấu hiểu để kết nối – Kết nối để sẻ chia.</div>
       <small>Nền tảng giáo dục và nâng cao nhận thức. Không thay thế chẩn đoán, tư vấn hoặc điều trị y tế.</small>
     </div>
@@ -526,7 +525,7 @@ def welcome_screen():
 
     st.markdown("""
     <div class="welcome-shell">
-        <div class="welcome-symbol">🪷</div>
+        <div class="welcome-symbol">🤝</div>
         <h1>CHẠM</h1>
         <h3>THẤU HIỂU ĐỂ KẾT NỐI</h3>
         <p>
@@ -543,7 +542,7 @@ def welcome_screen():
         st.image(str(LOGO_PATH), width=110)
 
     intro_text = (
-        "Chào mừng bạn đến với CHẠM Hub. "
+        "Chào mừng bạn đến với Chạm Hub. "
         "Alzheimer không chỉ là câu chuyện về trí nhớ, "
         "mà còn là câu chuyện về con người, gia đình và sự kết nối. "
         "Tại đây, bạn sẽ khám phá kiến thức khoa học dễ hiểu, "
@@ -582,11 +581,11 @@ def welcome_screen():
       const message = '{safe_text}';
       const status = document.getElementById('voice-status');
 
-      document.getElementById('speak').onclick = () => {
-        if (!('speechSynthesis' in window)) {
+      document.getElementById('speak').onclick = () => {{
+        if (!('speechSynthesis' in window)) {{
           status.textContent='Trình duyệt này chưa hỗ trợ đọc văn bản.';
           return;
-        }
+        }}
 
         window.speechSynthesis.cancel();
 
@@ -613,14 +612,14 @@ def welcome_screen():
           status.textContent='Không thể phát giọng đọc trên thiết bị này.';
 
         window.speechSynthesis.speak(utter);
-      };
+      }};
 
-      document.getElementById('stop').onclick = () => {
-        if ('speechSynthesis' in window) {
+      document.getElementById('stop').onclick = () => {{
+        if ('speechSynthesis' in window) {{
           window.speechSynthesis.cancel();
-        }
+        }}
         status.textContent='Đã dừng giọng đọc.';
-      };
+      }};
     </script>
     """, height=105)
 
