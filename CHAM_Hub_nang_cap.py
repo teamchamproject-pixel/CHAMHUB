@@ -107,6 +107,42 @@ KNOWLEDGE = [
             "Nghỉ ngơi không phải ích kỷ. Đó là một phần quan trọng để duy trì khả năng chăm sóc bền vững."
         ],
         "takeaway": "Không ai phải đi một mình – cả người cần hỗ trợ lẫn người đang chăm sóc."
+    },
+    {
+        "title": "Dinh dưỡng và lối sống hỗ trợ sức khỏe não bộ",
+        "category": "Sức khỏe não bộ",
+        "icon": "🥗",
+        "summary": "Những thói quen lành mạnh có lợi cho sức khỏe tổng thể và có thể góp phần hỗ trợ sức khỏe nhận thức.",
+        "body": [
+            "Ưu tiên chế độ ăn đa dạng với rau, trái cây, ngũ cốc nguyên hạt, các loại đậu, hạt và nguồn đạm phù hợp; hạn chế muối, đồ uống nhiều đường và thực phẩm chế biến quá mức.",
+            "Vận động thể chất phù hợp, ngủ đủ, duy trì kết nối xã hội, kiểm soát các yếu tố nguy cơ tim mạch và không hút thuốc có lợi cho sức khỏe tổng thể.",
+            "Không có thực phẩm, chế độ ăn hay thực phẩm bổ sung nào được bảo đảm ngăn ngừa hoặc chữa khỏi Alzheimer. Người có bệnh nền hoặc chế độ ăn đặc biệt nên trao đổi với chuyên gia y tế/dinh dưỡng."
+        ],
+        "takeaway": "Hãy hướng đến thói quen bền vững và phù hợp cá nhân; không quảng bá một món ăn hay sản phẩm như phương pháp chữa bệnh."
+    },
+    {
+        "title": "Chuẩn bị pháp lý và tài chính khi gia đình chăm sóc",
+        "category": "Gia đình và quyền lợi",
+        "icon": "📑",
+        "summary": "Trao đổi sớm về mong muốn, giấy tờ, phân công chăm sóc và chi phí giúp gia đình chủ động hơn.",
+        "body": [
+            "Khi người thân còn có thể tham gia quyết định, gia đình nên trò chuyện tôn trọng về mong muốn chăm sóc, người liên hệ đáng tin cậy và cách lưu giữ giấy tờ quan trọng.",
+            "Lập bảng chi phí thường xuyên, thuốc/khám theo hướng dẫn, đi lại, hỗ trợ sinh hoạt và khoản dự phòng; thống nhất cách chia sẻ trách nhiệm giữa các thành viên.",
+            "Quy định pháp luật về đại diện, tài sản, trợ cấp và quyền của người bệnh phụ thuộc từng quốc gia và tình huống. Với quyết định pháp lý cụ thể, hãy hỏi cơ quan có thẩm quyền hoặc luật sư; không dùng bài viết này thay tư vấn pháp lý."
+        ],
+        "takeaway": "Tôn trọng ý chí và quyền lợi của người bệnh; chuẩn bị giấy tờ và tài chính minh bạch, có tư vấn phù hợp."
+    },
+    {
+        "title": "Công nghệ hỗ trợ và phòng tránh đi lạc",
+        "category": "Công nghệ hỗ trợ",
+        "icon": "📍",
+        "summary": "Thiết bị định vị, nhắc lịch và điều chỉnh môi trường có thể hỗ trợ an toàn khi được sử dụng có đồng thuận và kế hoạch.",
+        "body": [
+            "Một số gia đình cân nhắc thiết bị định vị GPS, điện thoại có chia sẻ vị trí, nút liên hệ khẩn cấp, nhắc lịch hoặc cảm biến cửa. Hiệu quả phụ thuộc vào thiết bị, kết nối, pin và khả năng người dùng mang theo.",
+            "Nên lập kế hoạch phòng tránh đi lạc: ảnh gần đây, thông tin liên hệ, địa điểm thường đến, người cần gọi và cách phối hợp khi không tìm thấy người thân.",
+            "Cần tôn trọng quyền riêng tư, trao đổi với người bệnh trong khả năng có thể, bảo vệ dữ liệu vị trí và không phụ thuộc hoàn toàn vào công nghệ. Thiết bị không thay thế giám sát và đánh giá nguy cơ phù hợp."
+        ],
+        "takeaway": "Công nghệ là công cụ hỗ trợ, không phải bảo đảm an toàn tuyệt đối; hãy kết hợp với môi trường thân thiện và kế hoạch gia đình."
     }
 ]
 
@@ -247,7 +283,9 @@ DEFAULTS = {
     "brain_quiz_answer": {},
     "brain_quiz_submitted": False,
     "care_revealed": [],
-    "care_notes": ""
+    "care_notes": "",
+    "brain_deep_submitted": False,
+    "brain_deep_score": 0
 }
 
 for key, value in DEFAULTS.items():
@@ -487,6 +525,17 @@ hr {border-color:#dcebe2;}
 div[data-testid="stProgress"] > div > div {
     background:#0c7661;
 }
+/* Tăng tương phản chữ phụ và chữ trong các widget */
+[data-testid="stCaptionContainer"] p, .stCaption, .stCaption p {
+    color:#45665d !important;
+    -webkit-text-fill-color:#45665d !important;
+    opacity:1 !important;
+}
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] li,
+[data-testid="stText"] {
+    color:inherit;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -549,7 +598,20 @@ def welcome_screen():
         color:#FFE3A0 !important;
         -webkit-text-fill-color:#FFE3A0 !important;
     }
-    [data-testid="stCaptionContainer"] p { color:#48665D !important; }
+    /* Chữ phụ trên màn hình chào: màu đậm, không dùng màu xám nhạt */
+    [data-testid="stCaptionContainer"],
+    [data-testid="stCaptionContainer"] p,
+    .stCaption, .stCaption p {
+        color:#31564D !important;
+        -webkit-text-fill-color:#31564D !important;
+        opacity:1 !important;
+        font-weight:600 !important;
+    }
+    /* Chỉ phần nội dung trong thẻ xanh dùng chữ sáng */
+    .welcome-shell { color:#FFFFFF !important; }
+    .welcome-shell p { color:#F3FAF7 !important; }
+    .welcome-shell h1 { color:#FFFFFF !important; }
+    .welcome-shell h3 { color:#FFE3A0 !important; }
     .welcome-symbol {font-size:3.5rem;}
     </style>
     """, unsafe_allow_html=True)
@@ -598,13 +660,13 @@ def welcome_screen():
       </button>
 
       <button id="stop"
-      style="background:#ffffff18;color:white;border:1px solid #ffffff66;border-radius:12px;padding:13px 22px;font-weight:700;cursor:pointer">
+      style="background:#eaf4ef;color:#173e36;border:1px solid #b8d5c8;border-radius:12px;padding:13px 22px;font-weight:800;cursor:pointer">
       ■ DỪNG ĐỌC
       </button>
     </div>
 
     <div id="voice-status"
-    style="text-align:center;color:#d7eee5;font:13px Arial;margin-top:8px">
+    style="text-align:center;color:#31564d;background:#f5faf7;font:600 13px Arial;margin-top:8px;padding:6px 10px;border-radius:8px">
     Giọng đọc sử dụng tính năng đọc tiếng Việt có sẵn trên trình duyệt/thiết bị.
     </div>
 
@@ -817,77 +879,70 @@ elif page == "Khám phá Alzheimer":
     section_header(
         "01 / MODULE 1: HIỂU SÂU VỀ ALZHEIMER",
         "Khám phá Alzheimer & Cơ chế sinh học",
-        "Trang bị kiến thức khoa học cốt lõi, góc nhìn chuyên sâu và lộ trình tiến triển của bệnh."
+        "Từ phân tử APP, amyloid-beta và tau đến tiến trình thay đổi âm thầm của não bộ."
     )
+    st.markdown('<div class="quote"><b>Góc nhìn nhân văn:</b> Hiểu cơ chế bệnh giúp chúng ta giảm định kiến, không quy kết biểu hiện của người bệnh thành sự cố ý và biết khi nào cần tìm hỗ trợ chuyên môn.</div>', unsafe_allow_html=True)
 
-    st.markdown(
-        '<div class="quote"><b>Góc nhìn nhân văn:</b> Alzheimer không xóa nhòa nhân cách hay tình cảm sâu kín của một con người. '
-        'Hiểu đúng về căn bệnh giúp chúng ta nhìn thấu những nhu cầu đằng sau biểu hiện bên ngoài.</div>',
-        unsafe_allow_html=True
-    )
+    tabs = st.tabs(["🧬 APP → Amyloid-beta", "🧵 Protein Tau", "⏳ Timeline sinh học", "🪷 Các giai đoạn & hỗ trợ", "⚕️ Nhận diện & y tế"])
 
-    # Chia các Tab nâng cấp cho Module 1
-    mod1_tabs = st.tabs([
-        "🧬 Cơ chế sinh học thần kinh",
-        "📊 Các giai đoạn tiến triển",
-        "⚠️ Nhận diện & Lưu ý y tế"
-    ])
+    with tabs[0]:
+        st.subheader("APP có thể được xử lý theo những con đường khác nhau")
+        st.write("APP (amyloid precursor protein) là protein xuyên màng. Cách các enzyme secretase cắt APP góp phần quyết định có tạo ra peptide amyloid-beta hay không.")
+        c1, c2 = st.columns(2)
+        with c1:
+            st.markdown('<div class="panel"><div class="tag">CON ĐƯỜNG KHÔNG TẠO Aβ</div><h3>α-secretase → γ-secretase</h3><p>α-secretase cắt APP bên trong vùng Aβ, vì vậy chuỗi amyloid-beta nguyên vẹn không được tạo thành. Đây thường được gọi là con đường không sinh amyloid.</p></div>', unsafe_allow_html=True)
+        with c2:
+            st.markdown('<div class="panel"><div class="tag">CON ĐƯỜNG SINH Aβ</div><h3>β-secretase (BACE1) → γ-secretase</h3><p>β-secretase cắt APP tạo mảnh đầu C; γ-secretase tiếp tục cắt mảnh này và có thể giải phóng các peptide Aβ, trong đó có Aβ40 và Aβ42.</p></div>', unsafe_allow_html=True)
+        st.markdown("#### Sơ đồ tương tác phân tử")
+        st.markdown('''<div class="panel" style="text-align:center"><div style="background:#e8f4ee;padding:14px;border-radius:12px;color:#164c40;font-weight:800">APP – protein tiền chất amyloid</div><div style="font-size:24px;color:#b18a39">↓</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div style="background:#e9f4ff;padding:14px;border-radius:12px;color:#164c40"><b>α-secretase</b><br>cắt trong vùng Aβ<br><b>Không tạo Aβ nguyên vẹn</b></div><div style="background:#fff3df;padding:14px;border-radius:12px;color:#674b19"><b>β-secretase / BACE1</b><br>tạo mảnh C-terminal</div></div><div style="font-size:24px;color:#b18a39">↓ (nhánh β tiếp tục)</div><div style="background:#fff3df;padding:14px;border-radius:12px;color:#674b19"><b>γ-secretase</b><br>giải phóng peptide Aβ (ví dụ Aβ40, Aβ42)</div><div style="font-size:24px;color:#b18a39">↓</div><div style="background:#fbe9e8;padding:14px;border-radius:12px;color:#6d3330"><b>Aβ có thể kết tụ</b><br>oligomer → cấu trúc dạng sợi → mảng amyloid</div></div>''', unsafe_allow_html=True)
+        st.info("Aβ42 có xu hướng kết tụ cao hơn Aβ40. Sự tích tụ amyloid là một phần của bệnh sinh; tổn thương thần kinh còn liên quan đến tau, viêm thần kinh, rối loạn synapse và nhiều yếu tố khác.")
+        st.caption("Đọc thêm: NIA – What Happens to the Brain in Alzheimer's Disease: https://www.nia.nih.gov/health/alzheimers-causes-and-risk-factors/what-happens-brain-alzheimers-disease")
 
-    with mod1_tabs[0]:
-        st.subheader("Bản chất phân tử và cấu trúc não bộ bị ảnh hưởng")
-        st.write(
-            "Bệnh Alzheimer là kết quả của sự suy thoái tế bào thần kinh diễn ra âm thầm trong nhiều năm trước khi các triệu chứng lâm sàng xuất hiện rõ rệt. "
-            "Hai 'dấu ấn sinh học' chính cấu thành bệnh bao gồm:"
-        )
-        
-        col_a, col_b = st.columns(2)
-        with col_a:
-            st.markdown("""
-            <div class="panel">
-              <h4>🧱 Mảng bám Amyloid-beta</h4>
-              <p class="muted">Các đoạn protein amyloid tích tụ lại thành mảng bám cứng đầu nằm giữa các tế bào thần kinh trong não, cản trở trực tiếp quá trình truyền tín hiệu sinh hóa giữa các synapse.</p>
-            </div>
-            """, unsafe_allow_html=True)
-        with col_b:
-            st.markdown("""
-            <div class="panel">
-              <h4>🧵 Đám rối sợi Tau</h4>
-              <p class="muted">Bên trong tế bào thần kinh, các protein tau thay đổi cấu trúc, quấn xoắn lại với nhau thành các đám rối, khiến hệ thống vận chuyển chất dinh dưỡng bên trong tế bào bị sụp đổ.</p>
-            </div>
-            """, unsafe_allow_html=True)
+    with tabs[1]:
+        st.subheader("Tau: từ protein ổn định vi ống đến đám rối sợi")
+        st.write("Tau là protein gắn với vi ống, góp phần ổn định hệ thống vận chuyển bên trong tế bào thần kinh. Trong Alzheimer, tau có thể bị phosphoryl hóa quá mức, thay đổi khả năng gắn vi ống và có xu hướng kết tụ.")
+        tau_steps = [
+            ("01 · Tau bình thường", "Tau gắn với vi ống, hỗ trợ duy trì cấu trúc và vận chuyển vật chất dọc theo sợi trục."),
+            ("02 · Biến đổi phosphoryl hóa", "Cân bằng giữa các quá trình phosphoryl hóa và khử phosphoryl hóa bị thay đổi; tau có thể trở nên phosphoryl hóa quá mức."),
+            ("03 · Mất ổn định vi ống", "Tau giảm khả năng gắn vi ống; hệ thống vận chuyển nội bào bị ảnh hưởng."),
+            ("04 · Kết tụ tau", "Tau bất thường có thể kết tụ thành sợi xoắn đôi và các đám rối sợi thần kinh bên trong tế bào.")]
+        for title, desc in tau_steps:
+            with st.expander(title): st.write(desc)
+        st.warning("Không nên hiểu tau là nguyên nhân duy nhất hoặc mọi trường hợp đều diễn tiến theo một đường thẳng đơn giản. Amyloid, tau và các quá trình sinh học khác có tương tác phức tạp.")
 
-        st.write("")
-        st.info("💡 **Hậu quả:** Sự kết hợp của mảng bám và đám rối sợi thần kinh làm cho các tế bào não teo dần (teo vỏ não và vùng hồi hải mã), làm mất dần khả năng ghi nhớ và điều phối hành vi.")
+    with tabs[2]:
+        st.subheader("Timeline: thay đổi sinh học có thể xuất hiện trước triệu chứng")
+        st.write("Ở một số người, các thay đổi sinh học liên quan Alzheimer có thể bắt đầu từ nhiều năm, thậm chí khoảng 15–20 năm trước khi triệu chứng rõ rệt. Đây là mô hình khái quát, không phải đồng hồ dự báo cho từng cá nhân.")
+        timeline = [
+            ("Giai đoạn tiền lâm sàng", "Có thể đã xuất hiện thay đổi amyloid và các dấu ấn sinh học; người đó chưa biểu hiện suy giảm nhận thức rõ rệt."),
+            ("Giai đoạn thay đổi nhận thức rất nhẹ", "Một số người có thể nhận thấy thay đổi tinh tế ở trí nhớ hoặc tư duy; chưa chắc đã ảnh hưởng đáng kể đến sinh hoạt."),
+            ("Suy giảm nhận thức nhẹ (MCI)", "Khó khăn nhận thức rõ hơn so với trước; mức độ ảnh hưởng sinh hoạt khác nhau và không phải ai cũng tiến triển thành Alzheimer."),
+            ("Sa sút trí tuệ do Alzheimer", "Khó khăn nhận thức ảnh hưởng đến khả năng tự thực hiện các hoạt động thường ngày; nhu cầu hỗ trợ tăng dần.")]
+        for i,(title,desc) in enumerate(timeline):
+            st.markdown(f'<div class="panel"><div class="tag">MỐC {i+1}</div><h3>{title}</h3><p>{desc}</p></div>',unsafe_allow_html=True)
+        st.caption("Mốc 15–20 năm là ước lượng được mô tả trong một số nghiên cứu về tiến trình sinh học; thời điểm và tốc độ thay đổi rất khác nhau giữa các cá nhân. Tham khảo: NIA – Alzheimer's Disease Fact Sheet: https://www.nia.nih.gov/health/alzheimers-and-dementia/alzheimers-disease-fact-sheet")
 
-    with mod1_tabs[1]:
-        st.subheader("Hành trình tiến triển của bệnh qua 3 giai đoạn chính")
-        st.write("Việc nắm bắt các giai đoạn giúp người chăm sóc chuẩn bị tâm lý và phương án hỗ trợ phù hợp cho từng mốc thời gian:")
+    with tabs[3]:
+        st.subheader("Thẻ khám phá giai đoạn – bấm để lật nội dung")
+        stages = {
+            "Sớm / nhẹ": ("Biểu hiện có thể gặp", "Quên thông tin mới, khó tìm từ, khó sắp xếp công việc phức tạp; vẫn có thể tự chủ trong nhiều hoạt động.", "Nhu cầu hỗ trợ", "Tôn trọng quyền tự quyết; hỗ trợ lịch hẹn, ghi chú, nhãn đồ vật và khám y tế khi có thay đổi đáng lo."),
+            "Trung bình": ("Biểu hiện có thể gặp", "Lặp lại câu hỏi, nhầm lẫn thời gian/địa điểm, khó thực hiện một số sinh hoạt và có thể thay đổi cảm xúc.", "Nhu cầu hỗ trợ", "Duy trì nếp quen thuộc, hướng dẫn từng bước, giảm tiếng ồn và tăng giám sát an toàn phù hợp."),
+            "Tiến triển / nặng": ("Biểu hiện có thể gặp", "Khả năng giao tiếp và tự chăm sóc có thể suy giảm đáng kể; cần hỗ trợ nhiều trong sinh hoạt.", "Nhu cầu hỗ trợ", "Chú trọng thoải mái, vệ sinh, dinh dưỡng, phòng ngừa nguy cơ và phối hợp nhân viên y tế/gia đình.")}
+        chosen_stage = st.radio("Chọn một giai đoạn", list(stages), horizontal=True, key="mod1_flip_stage")
+        a,b = st.columns(2)
+        with a:
+            st.markdown(f'<div class="panel"><div class="tag">MẶT TRƯỚC · {chosen_stage}</div><h3>{stages[chosen_stage][0]}</h3><p>{stages[chosen_stage][1]}</p></div>',unsafe_allow_html=True)
+        with b:
+            st.markdown(f'<div class="panel"><div class="tag">MẶT SAU · ĐỒNG HÀNH</div><h3>{stages[chosen_stage][2]}</h3><p>{stages[chosen_stage][3]}</p></div>',unsafe_allow_html=True)
 
-        stage_cols = st.columns(3)
-        stages_info = [
-            ("Giai đoạn 1: Sớm (Nhẹ)", "🌱", "Bắt đầu quên các cuộc trò chuyện gần đây, hay để lẫn lộn đồ đạc, khó tập trung hoặc lập kế hoạch. Người bệnh vẫn có thể tự chăm sóc bản thân nhưng bắt đầu nhận thấy sự khác biệt."),
-            ("Giai đoạn 2: Trung bình", "⚡", "Vùng não tổn thương lan rộng. Người bệnh gặp khó khăn khi mặc quần áo, nhầm lẫn thứ ngày/tháng, hay đi lạc, có thể có các thay đổi về cảm xúc hoặc hoang tưởng nhẹ."),
-            ("Giai đoạn 3: Tiến triển (Nặng)", "🛡️", "Mất khả năng giao tiếp mạch lạc, không nhận diện được người thân quen, phụ thuộc hoàn toàn vào người chăm sóc trong mọi hoạt động ăn uống, vệ sinh hằng ngày.")
-        ]
-        for col, (st_title, st_icon, st_desc) in zip(stage_cols, stages_info):
-            with col:
-                st.markdown(f'<div class="panel"><div class="panel-icon">{st_icon}</div><h3>{st_title}</h3><p class="muted">{st_desc}</p></div>', unsafe_allow_html=True)
+    with tabs[4]:
+        st.subheader("Nhận diện thay đổi – không tự chẩn đoán")
+        st.write("Không phải mọi lần quên đều là Alzheimer. Nếu trí nhớ, ngôn ngữ, định hướng hoặc khả năng sinh hoạt thay đổi dai dẳng và ảnh hưởng cuộc sống, gia đình nên trao đổi với nhân viên y tế. Đánh giá có thể cần khai thác bệnh sử, kiểm tra nhận thức, khám lâm sàng và xét nghiệm/chẩn đoán hình ảnh khi phù hợp.")
+        st.warning("Nếu lú lẫn xuất hiện đột ngột, đặc biệt kèm yếu liệt, méo miệng, nói khó, sốt, đau dữ dội hoặc thay đổi ý thức, cần tìm trợ giúp y tế khẩn cấp; không mặc định đó là Alzheimer.")
 
-    with mod1_tabs[2]:
-        st.subheader("Lưu ý y tế quan trọng và khuyến cáo chẩn đoán")
-        st.write(
-            "Việc chẩn đoán chính xác đòi hỏi sự thăm khám kỹ lưỡng từ các bác sĩ chuyên khoa thần kinh thông qua bài kiểm tra nhận thức, "
-            "chụp chiếu thần kinh (MRI/CT) và loại trừ các nguyên nhân khác gây suy giảm trí nhớ (như thiếu hụt vitamin, trầm cảm, hoặc bệnh lý tuyến giáp)."
-        )
-        st.warning(
-            "⚠️ **Lưu ý quan trọng:** Không tự ý kết luận người lớn tuổi bị Alzheimer chỉ qua một vài lần quên lẫn thông thường. "
-            "Hãy đưa người thân đến cơ sở y tế uy tín để được đánh giá toàn diện và nhận tư vấn phác đồ chuẩn y khoa."
-        )
-
-    st.write("")
-    if st.button("Đã hoàn thành tìm hiểu Module 1", type="primary"):
+    if st.button("✓ Hoàn thành Module 1", type="primary", key="complete_mod1_deep"):
         mark_complete("basics")
-        st.success("Tuyệt vời! Tiến trình Module 1 của bạn đã được ghi nhận.")
+        st.success("Đã ghi nhận tiến trình học Module 1.")
 
 # ============================================================
 # 8. NÃO BỘ & TRÍ NHỚ
@@ -895,115 +950,80 @@ elif page == "Khám phá Alzheimer":
 
 elif page == "Não bộ & trí nhớ":
 
-    section_header(
-        "02 / THE BRAIN",
-        "Não bộ & trí nhớ",
-        "Khám phá cách một trải nghiệm trở thành ký ức, vai trò của các mạng lưới não bộ và những thay đổi có thể gặp trong Alzheimer."
-    )
+    section_header("02 / THE BRAIN", "Cấu trúc não bộ & Mạng lưới ký ức", "Tìm hiểu các vùng não, hệ thống ký ức và cách tín hiệu thần kinh được truyền qua synapse.")
+    st.markdown('<div class="quote"><b>Nguyên tắc quan trọng:</b> Không có một vùng não đơn lẻ “chứa” toàn bộ ký ức. Trí nhớ hình thành từ hoạt động của các mạng lưới phân bố và phối hợp với nhau.</div>', unsafe_allow_html=True)
 
-    st.markdown("""
-    <div class="panel">
-      <div class="panel-icon">🧠</div>
-      <h3>Trí nhớ không nằm trong một chiếc hộp duy nhất</h3>
-      <p>Trí nhớ là kết quả phối hợp của nhiều vùng não và mạng lưới thần kinh. Mỗi vùng đóng góp một phần vào việc tiếp nhận, xử lý, lưu giữ và gợi lại thông tin.</p>
-    </div>
-    """, unsafe_allow_html=True)
+    tabs = st.tabs(["🧠 Bản đồ vùng não", "🔗 Mạng lưới synapse", "📚 Hai hệ thống trí nhớ", "🧩 Alzheimer tác động", "🎯 Tự kiểm tra"])
+    with tabs[0]:
+        st.subheader("Các vùng thường được nhắc đến trong học tập về Alzheimer")
+        regions = [
+            ("Hồi hải mã", "Quan trọng đối với việc hình thành và củng cố ký ức mới, đặc biệt là ký ức sự kiện."),
+            ("Thùy thái dương", "Tham gia xử lý âm thanh, ngôn ngữ và kiến thức ngữ nghĩa; vùng thái dương trong có liên hệ chặt với trí nhớ."),
+            ("Thùy đỉnh", "Tham gia chú ý, tích hợp cảm giác, định hướng không gian và một số hoạt động nhận thức."),
+            ("Vỏ não trước trán", "Tham gia lập kế hoạch, trí nhớ làm việc, kiểm soát hành vi và ra quyết định.")]
+        st.caption("Sơ đồ dưới đây là tuyến giải thích khái quát, không phải thứ tự tổn thương cố định ở mọi người.")
+        for i,(name,desc) in enumerate(regions):
+            st.markdown(f'<div class="panel"><div class="tag">VÙNG {i+1}</div><h3>{name}</h3><p>{desc}</p></div>',unsafe_allow_html=True)
+            if i < len(regions)-1: st.markdown('<div style="text-align:center;color:#b18a39;font-size:24px">↓</div>',unsafe_allow_html=True)
+        st.info("Trên thực tế, mức độ và thứ tự ảnh hưởng khác nhau giữa các cá nhân. Alzheimer thường ảnh hưởng sớm đến mạng lưới liên quan trí nhớ, nhưng không thể dùng một sơ đồ tuyến tính để dự đoán từng người.")
 
-    tab_map, tab_process, tab_types, tab_alzheimer, tab_check = st.tabs([
-        "🧩 Bản đồ não bộ", "🔄 Hành trình ký ức", "📚 Các dạng trí nhớ",
-        "🧠 Alzheimer tác động", "🎯 Tự kiểm tra"
-    ])
+    with tabs[1]:
+        st.subheader("Synapse – điểm kết nối giữa các tế bào thần kinh")
+        st.write("Tín hiệu có thể truyền từ tế bào thần kinh này sang tế bào khác qua synapse. Chất dẫn truyền thần kinh được giải phóng, gắn vào thụ thể và tạo thay đổi ở tế bào nhận.")
+        st.markdown('''<div class="panel" style="text-align:center"><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:center"><div style="background:#e2f3eb;padding:18px;border-radius:14px;color:#164c40"><b>Tế bào A</b><br>Phát tín hiệu</div><div style="color:#b18a39;font-size:28px">→</div><div style="background:#e2f3eb;padding:18px;border-radius:14px;color:#164c40"><b>Tế bào B</b><br>Nhận tín hiệu</div></div><div style="margin:14px auto;background:#fff3df;color:#694d1c;padding:12px;border-radius:12px;max-width:520px"><b>Khe synapse</b><br>Chất dẫn truyền – thụ thể – điều chỉnh cường độ tín hiệu</div><small style="color:#526c64">Mô hình minh họa đơn giản, không theo tỷ lệ giải phẫu.</small></div>''',unsafe_allow_html=True)
+        st.subheader("Mạng lưới khi kết nối bị suy yếu")
+        grid = st.columns(5)
+        for i,col in enumerate(grid):
+            with col:
+                st.markdown(f'<div style="text-align:center;background:{"#fbe8e5" if i in (1,3) else "#e5f2ec"};padding:15px 4px;border-radius:12px;color:#24483f;font-weight:800">●<br>Neuron {i+1}</div>',unsafe_allow_html=True)
+        st.markdown('<div class="quote">Amyloid-beta, tau bất thường, viêm thần kinh và các quá trình bệnh sinh khác có thể góp phần làm rối loạn chức năng synapse và mạng lưới thần kinh. Hình minh họa chỉ diễn giải ý tưởng, không mô phỏng dữ liệu sinh học thực nghiệm.</div>',unsafe_allow_html=True)
 
-    with tab_map:
-        st.subheader("Một số vùng não và vai trò liên quan")
-        brain_regions = [
-            ("🧭", "Hồi hải mã", "Đóng vai trò quan trọng trong việc hình thành và củng cố ký ức mới, đặc biệt là ký ức về sự kiện và trải nghiệm."),
-            ("🗣️", "Mạng lưới ngôn ngữ", "Nhiều vùng não phối hợp để hiểu lời nói, lựa chọn từ ngữ, đọc và diễn đạt suy nghĩ."),
-            ("❤️", "Mạng lưới cảm xúc", "Các cấu trúc như hạch hạnh nhân tham gia xử lý cảm xúc và góp phần tạo sắc thái cảm xúc cho trải nghiệm."),
-            ("🧭", "Vùng định hướng không gian", "Các mạng lưới vùng thái dương, đỉnh và những vùng khác giúp nhận biết vị trí, phương hướng và bối cảnh."),
-            ("⚙️", "Vỏ não trước trán", "Tham gia lập kế hoạch, chú ý, kiểm soát hành vi và trí nhớ làm việc.")
-        ]
-        for row in range(0, len(brain_regions), 2):
-            cols = st.columns(2)
-            for col, item in zip(cols, brain_regions[row:row+2]):
-                with col:
-                    st.markdown(f'<div class="panel"><div class="panel-icon">{item[0]}</div><h3>{html.escape(item[1])}</h3><p class="muted">{html.escape(item[2])}</p></div>', unsafe_allow_html=True)
-        st.info("Lưu ý: Đây là mô tả khái quát. Trí nhớ và nhận thức không do một vùng não đơn lẻ đảm nhiệm; các vùng luôn hoạt động trong mạng lưới.")
+    with tabs[2]:
+        st.subheader("Trí nhớ tường thuật và trí nhớ thủ tục")
+        c1,c2=st.columns(2)
+        with c1:
+            st.markdown('<div class="panel"><div class="tag">TRÍ NHỚ TƯỜNG THUẬT</div><h3>Biết và kể lại điều đã xảy ra</h3><p>Gồm trí nhớ sự kiện cá nhân (ví dụ một buổi sinh nhật) và trí nhớ ngữ nghĩa (khái niệm, sự kiện, tên gọi). Việc hình thành và gợi lại thường cần phối hợp hồi hải mã cùng nhiều vùng vỏ não.</p></div>',unsafe_allow_html=True)
+        with c2:
+            st.markdown('<div class="panel"><div class="tag">TRÍ NHỚ THỦ TỤC</div><h3>Biết cách thực hiện một kỹ năng</h3><p>Liên quan kỹ năng và thói quen đã luyện tập, như đạp xe, thao tác quen thuộc hoặc chơi một đoạn nhạc. Hệ thống này có sự tham gia của hạch nền, tiểu não và mạng lưới vận động.</p></div>',unsafe_allow_html=True)
+        st.info("Vì các hệ thống trí nhớ có cơ sở thần kinh khác nhau, một số kỹ năng hoặc phản ứng quen thuộc có thể còn được duy trì khi khả năng nhớ sự kiện/tên gọi đã suy giảm. Tuy nhiên, điều này không đúng với mọi người và không có nghĩa người bệnh chắc chắn vẫn chơi nhạc cụ thành thạo.")
+        st.caption("Tham khảo nền tảng: Squire, L.R. (2004), Memory systems of the brain: a brief history and current perspective, Neurobiology of Learning and Memory.")
+        example = st.selectbox("Thử phân loại ví dụ", ["Nhớ tên trường đã học", "Thực hiện động tác đạp xe đã luyện tập", "Kể lại chuyến du lịch năm ngoái", "Nhớ nghĩa của từ ‘synapse’"], key="memory_kind_example")
+        if st.button("Phân loại ví dụ", key="memory_kind_check"):
+            procedural = "đạp xe" in example
+            st.success("Ví dụ gần với trí nhớ thủ tục." if procedural else "Ví dụ gần với trí nhớ tường thuật (sự kiện hoặc ngữ nghĩa).")
 
-    with tab_process:
-        st.subheader("Bốn chặng khái quát của một ký ức")
-        process = [
-            ("01 · Tiếp nhận", "Giác quan đưa thông tin về âm thanh, hình ảnh, mùi, vị hoặc xúc giác đến não."),
-            ("02 · Mã hóa", "Não chú ý, xử lý và liên kết thông tin mới với kiến thức hoặc trải nghiệm đã có."),
-            ("03 · Lưu giữ", "Những thay đổi trong kết nối thần kinh giúp duy trì thông tin theo thời gian."),
-            ("04 · Gợi lại", "Ta truy xuất thông tin khi cần; việc gợi lại có thể chịu ảnh hưởng bởi ngữ cảnh, cảm xúc và sự chú ý.")
-        ]
-        for n, (title, desc) in enumerate(process):
-            st.markdown(f'<div class="panel"><div class="tag">CHẶNG {n+1}</div><h3>{title}</h3><p class="muted">{desc}</p></div>', unsafe_allow_html=True)
-        st.markdown("**Thử liên hệ:** Khi bạn nghe một bài hát quen thuộc và nhớ đến một chuyến đi, những chặng nào vừa diễn ra?")
-        example = st.selectbox("Chọn mô tả phù hợp nhất", ["Chỉ có lưu giữ, không có gợi lại", "Âm thanh được tiếp nhận, liên kết với trải nghiệm và ký ức được gợi lại", "Ký ức chỉ được tạo ra khi ta cố học thuộc"], key="brain_process_example")
-        if st.button("Kiểm tra ví dụ", key="brain_process_check"):
-            if example.startswith("Âm thanh"):
-                st.success("Chính xác. Một tín hiệu hiện tại có thể kích hoạt liên tưởng và giúp ta gợi lại trải nghiệm cũ.")
-            else:
-                st.info("Hãy nghĩ đến cả quá trình: tiếp nhận tín hiệu, xử lý/liên kết và gợi lại thông tin.")
+    with tabs[3]:
+        st.subheader("Những thay đổi có thể gặp")
+        stage = st.select_slider("Chọn mức độ ảnh hưởng khái quát", ["Sớm", "Trung bình", "Tiến triển"], key="brain_stage_slider")
+        descriptions = {
+            "Sớm":"Khó hình thành ký ức mới, quên cuộc trò chuyện gần đây hoặc khó tìm từ; nhiều hoạt động độc lập vẫn có thể duy trì.",
+            "Trung bình":"Khó khăn có thể lan sang ngôn ngữ, định hướng, lập kế hoạch và sinh hoạt; cần hướng dẫn từng bước và hỗ trợ an toàn.",
+            "Tiến triển":"Nhiều chức năng nhận thức và tự chăm sóc có thể suy giảm đáng kể; ưu tiên thoải mái, giao tiếp phù hợp và hỗ trợ liên tục."}
+        st.info(descriptions[stage])
+        st.warning("Các giai đoạn không phải khuôn mẫu cứng. Chỉ nhân viên y tế mới có thể đánh giá tình trạng cụ thể.")
 
-    with tab_types:
-        memory_types = [
-            ("Trí nhớ sự kiện", "Nhớ một buổi sinh nhật, chuyến đi hoặc cuộc gặp cụ thể."),
-            ("Trí nhớ ngữ nghĩa", "Nhớ kiến thức, ý nghĩa từ ngữ và sự thật đã học."),
-            ("Trí nhớ kỹ năng", "Thực hiện một kỹ năng đã luyện tập, chẳng hạn đạp xe hoặc chơi nhạc cụ."),
-            ("Trí nhớ làm việc", "Giữ tạm thời và thao tác với thông tin trong lúc giải quyết một việc, như nhớ một chỉ dẫn ngắn.")
-        ]
-        for title, desc in memory_types:
-            with st.expander(title):
-                st.write(desc)
-        st.caption("Các dạng trí nhớ có thể tương tác với nhau; cách phân loại trên nhằm giúp người học dễ hình dung.")
-
-    with tab_alzheimer:
-        st.subheader("Điều gì có thể thay đổi trong Alzheimer?")
-        st.write("Alzheimer là bệnh lý tiến triển có thể làm tổn thương tế bào thần kinh và kết nối giữa chúng. Khó khăn thường xuất hiện ở trí nhớ gần đây, sau đó có thể ảnh hưởng đến ngôn ngữ, định hướng, suy luận và sinh hoạt hằng ngày.")
-        impact = st.select_slider("Khám phá theo mức độ hỗ trợ thường cần (mang tính khái quát)", options=["Giai đoạn sớm", "Giai đoạn trung bình", "Giai đoạn tiến triển"])
-        impact_text = {
-            "Giai đoạn sớm": "Có thể bắt đầu gặp khó khăn khi ghi nhớ thông tin mới, tìm từ hoặc quản lý công việc phức tạp. Người đó vẫn có thể tự thực hiện nhiều hoạt động.",
-            "Giai đoạn trung bình": "Nhầm lẫn về thời gian, địa điểm, lặp lại câu hỏi hoặc cần hỗ trợ nhiều hơn trong sinh hoạt có thể trở nên rõ rệt.",
-            "Giai đoạn tiến triển": "Giao tiếp và khả năng tự chăm sóc có thể suy giảm đáng kể; cần hỗ trợ thường xuyên và chăm sóc phù hợp."
-        }
-        st.info(impact_text[impact])
-        st.warning("Diễn tiến ở mỗi người không hoàn toàn giống nhau. Nội dung này không dùng để tự xác định giai đoạn hay chẩn đoán bệnh.")
-
-    with tab_check:
-        brain_questions = [
-            ("Vùng nào có vai trò quan trọng trong hình thành ký ức mới?", ["Hồi hải mã", "Da", "Phổi"], 0, "Hồi hải mã tham gia quan trọng vào việc hình thành và củng cố ký ức mới."),
-            ("Trí nhớ được đảm nhiệm bởi…", ["Một điểm duy nhất trong não", "Mạng lưới nhiều vùng não", "Chỉ cơ bắp"], 1, "Nhiều vùng và mạng lưới thần kinh phối hợp trong các hoạt động trí nhớ."),
-            ("Khi người thân quên một sự kiện, điều nào nên được ghi nhớ?", ["Họ cố tình không quan tâm", "Giá trị và cảm xúc của họ vẫn cần được tôn trọng", "Cần kiểm tra trí nhớ liên tục"], 1, "Khó khăn về trí nhớ không làm mất đi phẩm giá và nhu cầu được tôn trọng.")
-        ]
-        for qi, (question, options, answer, why) in enumerate(brain_questions):
-            st.markdown(f"**Câu {qi+1}. {question}**")
-            st.radio("Chọn một đáp án", options, key=f"brain_quiz_{qi}", index=None, label_visibility="collapsed")
-        if st.button("Chấm phần tự kiểm tra", type="primary", key="brain_quiz_submit"):
-            score = 0
-            for qi, (_, options, answer, _) in enumerate(brain_questions):
-                if st.session_state.get(f"brain_quiz_{qi}") == options[answer]:
-                    score += 1
-            st.session_state.brain_quiz_submitted = True
-            st.session_state.brain_quiz_score = score
-        if st.session_state.get("brain_quiz_submitted"):
-            score = st.session_state.get("brain_quiz_score", 0)
-            st.success(f"Bạn trả lời đúng {score}/{len(brain_questions)} câu.")
-            for qi, (question, options, answer, why) in enumerate(brain_questions):
-                chosen = st.session_state.get(f"brain_quiz_{qi}")
-                st.markdown(f"**{qi+1}. {'Đúng' if chosen == options[answer] else 'Ôn tập thêm'}** — {why}")
-            if st.button("Làm lại phần tự kiểm tra", key="brain_quiz_reset"):
-                st.session_state.brain_quiz_submitted = False
-                for qi in range(len(brain_questions)):
-                    st.session_state.pop(f"brain_quiz_{qi}", None)
+    with tabs[4]:
+        questions = [
+            ("Vùng nào đặc biệt quan trọng với việc hình thành ký ức mới?", ["Hồi hải mã", "Da", "Phổi"], 0, "Hồi hải mã có vai trò quan trọng trong hình thành và củng cố ký ức mới."),
+            ("Trí nhớ tường thuật thường liên quan đến điều gì?", ["Sự kiện và kiến thức có thể kể lại", "Chỉ kỹ năng vận động", "Chỉ phản xạ"], 0, "Trí nhớ tường thuật gồm trí nhớ sự kiện và trí nhớ ngữ nghĩa."),
+            ("Đạp xe sau khi đã luyện tập lâu năm gần với dạng nào?", ["Trí nhớ thủ tục", "Trí nhớ ngữ nghĩa", "Trí nhớ làm việc"], 0, "Kỹ năng vận động đã luyện tập là ví dụ điển hình của trí nhớ thủ tục.")]
+        for i,(q,opts,ans,why) in enumerate(questions):
+            st.radio(f"{i+1}. {q}",opts,key=f"brain_deep_q_{i}",index=None)
+        if st.button("Chấm điểm",key="brain_deep_submit",type="primary"):
+            score=sum(st.session_state.get(f"brain_deep_q_{i}")==opts[ans] for i,(_,opts,ans,_) in enumerate(questions))
+            st.session_state.brain_deep_score=score
+            st.session_state.brain_deep_submitted=True
+        if st.session_state.get("brain_deep_submitted"):
+            st.success(f"Kết quả: {st.session_state.get('brain_deep_score',0)}/{len(questions)} câu đúng.")
+            for i,(_,opts,ans,why) in enumerate(questions): st.caption(f"Câu {i+1}: {why}")
+            if st.button("Làm lại",key="brain_deep_reset"):
+                for i in range(len(questions)): st.session_state.pop(f"brain_deep_q_{i}",None)
+                st.session_state.brain_deep_submitted=False
                 st.rerun()
 
-    st.markdown('<div class="quote">Một ký ức có thể phai mờ, nhưng cảm xúc và nhu cầu được tôn trọng của con người vẫn cần được quan tâm.</div>', unsafe_allow_html=True)
-    if st.button("Hoàn thành chủ đề Não bộ & trí nhớ", type="primary", key="complete_brain"):
+    if st.button("✓ Hoàn thành Module 2",type="primary",key="complete_brain_deep"):
         mark_complete("brain")
-        st.success("Bạn đã hoàn thành chủ đề này.")
+        st.success("Đã ghi nhận tiến trình học Module 2.")
 
 # ============================================================
 # 9. THƯ VIỆN TRI THỨC
@@ -1011,82 +1031,79 @@ elif page == "Não bộ & trí nhớ":
 
 elif page == "Thư viện tri thức":
 
-    section_header(
-        "03 / KNOWLEDGE LIBRARY", "Thư viện tri thức",
-        "Một thư viện học tập có thể tìm kiếm, lưu chủ đề yêu thích và theo dõi hành trình đọc của bạn."
-    )
+    section_header("03 / KNOWLEDGE LIBRARY", "Thư viện tri thức", "Đọc – nghe – tải xuống – lưu lại. Mỗi chuyên đề có thời gian đọc ước tính và tiến độ học tập.")
+    total=len(KNOWLEDGE)
+    read_count=len(st.session_state.knowledge_read)
+    saved_count=len(st.session_state.knowledge_saved)
+    a,b,c=st.columns(3)
+    a.metric("Chuyên đề",total); b.metric("Đã đọc",f"{read_count}/{total}"); c.metric("Đã lưu",saved_count)
+    st.progress(min(read_count/total,1) if total else 0)
 
-    total = len(KNOWLEDGE)
-    read_count = len(st.session_state.knowledge_read)
-    saved_count = len(st.session_state.knowledge_saved)
-    m1, m2, m3 = st.columns(3)
-    m1.metric("Chủ đề", total)
-    m2.metric("Đã đọc", f"{read_count}/{total}")
-    m3.metric("Đã lưu", saved_count)
-    st.progress(read_count / total if total else 0)
-
-    search_col, category_col = st.columns([2, 1])
+    search_col,category_col=st.columns([2,1])
     with search_col:
-        search = st.text_input("🔎 Tìm trong thư viện", placeholder="Nhập từ khóa: trí nhớ, amyloid, giao tiếp…", key="knowledge_search")
+        search=st.text_input("🔎 Tìm kiếm tri thức",placeholder="Ví dụ: APP, tau, dinh dưỡng, định vị…",key="knowledge_search")
     with category_col:
-        categories = ["Tất cả"] + sorted(set(x["category"] for x in KNOWLEDGE))
-        selected_category = st.selectbox("Danh mục", categories, key="knowledge_category")
+        categories=["Tất cả"]+sorted({x["category"] for x in KNOWLEDGE})
+        selected_category=st.selectbox("Lọc chuyên đề",categories,key="knowledge_category")
+    view_mode=st.radio("Bộ sưu tập",["Tất cả", "Đã lưu", "Đã đọc"],horizontal=True,key="knowledge_view")
 
-    view_mode = st.radio("Hiển thị", ["Tất cả chủ đề", "Chủ đề đã lưu", "Chủ đề đã đọc"], horizontal=True, key="knowledge_view")
-    filtered = []
-    for item in KNOWLEDGE:
-        haystack = " ".join([item["title"], item["summary"], item["category"], " ".join(item["body"]), item["takeaway"]]).casefold()
-        idx = KNOWLEDGE.index(item)
-        if selected_category != "Tất cả" and item["category"] != selected_category:
-            continue
-        if search and search.casefold() not in haystack:
-            continue
-        if view_mode == "Chủ đề đã lưu" and idx not in st.session_state.knowledge_saved:
-            continue
-        if view_mode == "Chủ đề đã đọc" and idx not in st.session_state.knowledge_read:
-            continue
-        filtered.append((idx, item))
+    filtered=[]
+    for idx,item in enumerate(KNOWLEDGE):
+        searchable=" ".join([item["title"],item["summary"],item["category"]," ".join(item["body"]),item["takeaway"]]).casefold()
+        if selected_category!="Tất cả" and item["category"]!=selected_category: continue
+        if search and search.casefold() not in searchable: continue
+        if view_mode=="Đã lưu" and idx not in st.session_state.knowledge_saved: continue
+        if view_mode=="Đã đọc" and idx not in st.session_state.knowledge_read: continue
+        filtered.append((idx,item))
+    st.markdown(f"**{len(filtered)} chuyên đề phù hợp**")
+    if not filtered: st.info("Không tìm thấy bài phù hợp. Thử từ khóa hoặc danh mục khác.")
 
-    st.markdown(f"**{len(filtered)} kết quả** phù hợp với bộ lọc hiện tại.")
-    if not filtered:
-        st.info("Chưa có chủ đề phù hợp. Hãy đổi từ khóa hoặc bộ lọc.")
-
-    for idx, item in filtered:
+    for idx,item in filtered:
+        words=sum(len(part.split()) for part in item["body"])+len(item["summary"].split())
+        minutes=max(1,(words+179)//180)
+        read=idx in st.session_state.knowledge_read
         with st.container(border=True):
-            left, right = st.columns([5, 1])
+            left,right=st.columns([5,1])
             with left:
                 st.markdown(f"### {item['icon']} {item['title']}")
-                st.caption(f"{item['category']} · {len(item['body'])} phần nội dung · khoảng {max(1, sum(len(x.split()) for x in item['body']) // 180 + 1)} phút đọc")
+                st.caption(f"{item['category']} · {minutes} phút đọc · {len(item['body'])} phần")
                 st.write(item["summary"])
+                st.progress(1.0 if read else 0.0)
+                st.caption("Đã hoàn thành" if read else "Chưa đánh dấu hoàn thành")
             with right:
-                is_saved = idx in st.session_state.knowledge_saved
-                if st.button("★ Đã lưu" if is_saved else "☆ Lưu", key=f"save_knowledge_{idx}", use_container_width=True):
-                    if is_saved:
-                        st.session_state.knowledge_saved.remove(idx)
-                    else:
-                        st.session_state.knowledge_saved.append(idx)
+                saved=idx in st.session_state.knowledge_saved
+                if st.button("★ Đã lưu" if saved else "☆ Lưu bài",key=f"save_knowledge_v3_{idx}",use_container_width=True):
+                    if saved: st.session_state.knowledge_saved.remove(idx)
+                    else: st.session_state.knowledge_saved.append(idx)
                     st.rerun()
-            with st.expander("Mở bài đọc và nội dung chi tiết"):
-                for paragraph in item["body"]:
-                    st.write(paragraph)
-                st.markdown(f'<div class="quote"><b>Điều cần nhớ:</b> {html.escape(item["takeaway"])}</div>', unsafe_allow_html=True)
-                read = idx in st.session_state.knowledge_read
-                if st.button("✓ Đánh dấu đã đọc" if not read else "Đã hoàn thành bài đọc", key=f"mark_knowledge_{idx}", type="primary" if not read else "secondary"):
-                    if idx not in st.session_state.knowledge_read:
-                        st.session_state.knowledge_read.append(idx)
-                    mark_complete(f"knowledge_{idx}")
-                    st.success("Đã cập nhật tiến trình đọc của bạn.")
+            with st.expander("Mở chuyên đề"):
+                for paragraph in item["body"]: st.write(paragraph)
+                st.markdown(f'<div class="quote"><b>Điều cần nhớ:</b> {html.escape(item["takeaway"])}</div>',unsafe_allow_html=True)
+                markdown_text=f"# {item['title']}\n\n**Danh mục:** {item['category']}\n\n{item['summary']}\n\n"+"\n\n".join(item["body"])+f"\n\n## Điều cần nhớ\n\n{item['takeaway']}\n\n---\nTài liệu giáo dục CHẠM Hub. Nội dung không thay thế tư vấn y tế/pháp lý chuyên môn."
+                d1,d2,d3=st.columns(3)
+                with d1:
+                    st.download_button("⬇ Tải Markdown",data=markdown_text,file_name=f"CHAM_{idx+1:02d}.md",mime="text/markdown",key=f"download_md_{idx}",use_container_width=True)
+                with d2:
+                    speech=html.escape(item["title"]+". "+item["summary"]+". "+". ".join(item["body"])+". Điều cần nhớ: "+item["takeaway"])
+                    components.html(f'''<button onclick="(function(){{if(!('speechSynthesis' in window)){{alert('Trình duyệt chưa hỗ trợ đọc văn bản.');return;}}speechSynthesis.cancel();var u=new SpeechSynthesisUtterance('{speech}');u.lang='vi-VN';u.rate=0.92;speechSynthesis.speak(u);}})()" style="width:100%;padding:10px;border-radius:9px;border:1px solid #b8d5c8;background:#e8f4ed;color:#164c40;font-weight:700;cursor:pointer">🔊 Nghe bài viết</button>''',height=48)
+                with d3:
+                    if st.button("✓ Đánh dấu đã đọc" if not read else "Đã đọc",key=f"mark_knowledge_v3_{idx}",type="primary" if not read else "secondary",use_container_width=True):
+                        if idx not in st.session_state.knowledge_read: st.session_state.knowledge_read.append(idx)
+                        mark_complete(f"knowledge_{idx}")
+                        st.success("Đã cập nhật tiến độ đọc.")
 
     with st.expander("📖 Bảng thuật ngữ nhanh"):
-        glossary = {
-            "Amyloid-beta": "Một loại protein có thể tích tụ thành mảng trong não ở bệnh Alzheimer.",
-            "Tau": "Protein giúp ổn định cấu trúc bên trong tế bào thần kinh; trong Alzheimer có thể biến đổi bất thường và hình thành đám rối.",
-            "Tế bào thần kinh": "Tế bào chuyên tiếp nhận và truyền tín hiệu trong hệ thần kinh.",
-            "Nhận thức": "Các hoạt động tinh thần như chú ý, ghi nhớ, ngôn ngữ, định hướng và suy luận."
+        glossary={
+            "APP":"Protein tiền chất amyloid, có thể được cắt bởi các enzyme secretase.",
+            "Amyloid-beta (Aβ)":"Peptide được tạo ra từ quá trình xử lý APP; có thể kết tụ thành các cấu trúc amyloid.",
+            "BACE1 / β-secretase":"Enzyme tham gia bước cắt APP theo con đường sinh amyloid.",
+            "Tau":"Protein liên quan vi ống; tau bất thường có thể kết tụ thành đám rối sợi thần kinh.",
+            "Synapse":"Vị trí kết nối giúp tế bào thần kinh truyền tín hiệu.",
+            "Trí nhớ thủ tục":"Hệ thống trí nhớ liên quan kỹ năng và thói quen đã luyện tập.",
+            "GPS":"Hệ thống định vị có thể hỗ trợ chia sẻ vị trí khi được thiết lập phù hợp."
         }
-        for term, definition in glossary.items():
-            st.markdown(f"**{term}** — {definition}")
-    st.caption("Tiến trình đọc và danh sách đã lưu được lưu trong phiên sử dụng hiện tại của trình duyệt, không phải tài khoản đồng bộ dùng chung.")
+        for term,definition in glossary.items(): st.markdown(f"**{term}** — {definition}")
+    st.caption("Tiến độ và danh sách đã lưu được giữ trong phiên sử dụng hiện tại; chưa đồng bộ giữa các thiết bị hoặc người dùng.")
 
 # ============================================================
 # 10. CẨM NANG ĐỒNG HÀNH
