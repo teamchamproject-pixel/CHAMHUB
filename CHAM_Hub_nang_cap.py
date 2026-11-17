@@ -10,8 +10,7 @@ import streamlit.components.v1 as components
 # ============================================================
 
 BASE_DIR = Path(__file__).resolve().parent
-ASSET_DIR = BASE_DIR / "assets"
-LOGO_PATH = ASSET_DIR / "logo_cham.png"
+LOGO_PATH = BASE_DIR / "logo_cham.png" 
 
 st.set_page_config(
     page_title="CHẠM Hub | Thấu hiểu để kết nối",
