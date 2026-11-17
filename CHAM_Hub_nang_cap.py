@@ -1,6 +1,7 @@
 from pathlib import Path
 import random
 import html
+import time
 import streamlit as st
 
 # =========================================================
@@ -9,18 +10,20 @@ import streamlit as st
 
 st.set_page_config(
     page_title="CHẠM Hub | Thấu hiểu để kết nối",
-    page_icon="🪷",
+    page_icon="🤝",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 BASE_DIR = Path(__file__).parent
-# Trỏ trực tiếp đến logo nằm ở thư mục gốc của GitHub
 LOGO_PATH = BASE_DIR / "logo_cham.png"
 
 # =========================================================
 # 2. DỮ LIỆU VÀ TRẠNG THÁI
 # =========================================================
+
+if "welcomed" not in st.session_state:
+    st.session_state.welcomed = False
 
 if "journal" not in st.session_state:
     st.session_state.journal = []
@@ -50,7 +53,7 @@ if "quiz_answer" not in st.session_state:
     st.session_state.quiz_answer = None
 
 # =========================================================
-# 3. GIAO DIỆN
+# 3. GIAO DIỆN TƯƠI MỚI & HIỆU ỨNG
 # =========================================================
 
 st.markdown("""
@@ -61,29 +64,42 @@ html, body, [class*="css"] {
     font-family: 'Be Vietnam Pro', sans-serif;
 }
 
+/* Nền tổng thể trắng ngà ấm áp */
 .stApp {
-    background: #F5F8F5;
+    background-color: #FAF8F5;
+    color: #1B3B5A;
 }
 
+/* Thanh bên (Sidebar) xanh navy dịu kết hợp điểm nhấn tươi sáng */
 section[data-testid="stSidebar"] {
-    background: #102D2A;
-    border-right: 1px solid #254B42;
+    background: linear-gradient(180deg, #1B3B5A 0%, #244D73 100%);
+    border-right: 1px solid #32628E;
 }
 
 section[data-testid="stSidebar"] * {
-    color: #F3F8F4 !important;
+    color: #FDFBF7 !important;
 }
 
 section[data-testid="stSidebar"] .stRadio label {
-    font-size: 14px;
+    font-size: 14.5px;
+    padding: 4px 0;
 }
 
-section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
-    color: #D5E4DA !important;
+/* Sửa lỗi ô Metric trên Sidebar bị nền trắng chữ trắng */
+section[data-testid="stSidebar"] div[data-testid="stMetric"] {
+    background: rgba(255, 255, 255, 0.14) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border-radius: 14px;
+    padding: 12px 15px;
+}
+
+section[data-testid="stSidebar"] div[data-testid="stMetric"] label,
+section[data-testid="stSidebar"] div[data-testid="stMetric"] [data-testid="stMetricValue"] {
+    color: #F3C66F !important;
 }
 
 h1, h2, h3 {
-    color: #173F35;
+    color: #1B3B5A;
     font-weight: 800;
 }
 
@@ -91,123 +107,204 @@ p {
     line-height: 1.75;
 }
 
+/* Banner Hero tươi sáng */
 .hero {
-    background: linear-gradient(120deg, #102F2B, #245C4A);
+    background: linear-gradient(125deg, #1F4E78 0%, #367B8A 55%, #489E82 100%);
     padding: 42px;
     border-radius: 24px;
     color: white;
     margin-bottom: 26px;
-    box-shadow: 0 12px 35px rgba(20,60,45,0.12);
+    box-shadow: 0 14px 35px rgba(31, 78, 120, 0.15);
 }
 
 .hero h1 {
     color: white;
-    font-size: 42px;
-    margin-bottom: 8px;
+    font-size: 40px;
+    margin-bottom: 10px;
 }
 
 .hero p {
-    color: #DCECE1;
-    font-size: 16px;
+    color: #F2FAF8;
+    font-size: 16.5px;
 }
 
 .eyebrow {
-    color: #C7DDAF;
+    color: #F3C66F;
     letter-spacing: 3px;
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 800;
+    margin-bottom: 6px;
 }
 
+/* Thẻ nội dung có hiệu ứng hover mượt mà */
 .panel {
-    background: white;
-    border: 1px solid #E2EBE3;
+    background: #FFFFFF;
+    border: 1px solid #EAE4DC;
     border-radius: 18px;
-    padding: 22px;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 15px rgba(20,50,35,0.035);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 6px 20px rgba(27, 59, 90, 0.04);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.panel:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(72, 158, 130, 0.12);
+    border-color: #489E82;
 }
 
 .panel h3 {
     margin-top: 0;
+    color: #1B3B5A;
 }
 
 .green-panel {
-    background: #E8F2EA;
-    border-left: 5px solid #438568;
-    border-radius: 13px;
-    padding: 19px;
-    margin: 12px 0;
+    background: #EBF7F3;
+    border-left: 5px solid #489E82;
+    border-radius: 14px;
+    padding: 20px;
+    margin: 14px 0;
+    color: #184235;
 }
 
 .gold-panel {
-    background: #F8F1DF;
-    border-left: 5px solid #C9A65A;
-    border-radius: 13px;
-    padding: 19px;
-    margin: 12px 0;
+    background: #FFF6E9;
+    border-left: 5px solid #E5A94C;
+    border-radius: 14px;
+    padding: 20px;
+    margin: 14px 0;
+    color: #5C3D12;
 }
 
 .quote {
-    background: #EAF2EB;
+    background: linear-gradient(135deg, #FFF5F5 0%, #FFF9EC 100%);
+    border: 1px solid #F4D8D8;
+    border-left: 6px solid #E68A8A;
     border-radius: 16px;
-    padding: 25px;
+    padding: 24px;
     font-size: 19px;
-    color: #285D49;
-    font-weight: 600;
+    color: #1B3B5A;
+    font-weight: 700;
     text-align: center;
     margin: 22px 0;
 }
 
 .small-label {
     font-size: 11px;
-    color: #769083;
-    letter-spacing: 1.5px;
+    color: #489E82;
+    letter-spacing: 1.8px;
     font-weight: 800;
 }
 
 .card-title {
-    font-size: 21px;
+    font-size: 20px;
     font-weight: 800;
-    color: #214D3E;
+    color: #1B3B5A;
+    margin-bottom: 8px;
 }
 
 .stButton > button {
-    border-radius: 10px;
+    border-radius: 12px;
     font-weight: 700;
-    border: 1px solid #BBD2C0;
-    min-height: 42px;
+    border: 1px solid #C8D8D3;
+    min-height: 44px;
+    transition: all 0.2s ease;
 }
 
 .stButton > button[kind="primary"] {
-    background: #27664D;
-    border-color: #27664D;
+    background: linear-gradient(135deg, #3A8D73 0%, #489E82 100%);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(72, 158, 130, 0.25);
 }
 
-div[data-testid="stMetric"] {
-    background: white;
-    padding: 15px;
-    border-radius: 15px;
-    border: 1px solid #E4ECE5;
+.stButton > button[kind="primary"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(72, 158, 130, 0.35);
+}
+
+.main div[data-testid="stMetric"] {
+    background: #FFFFFF;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid #EAE4DC;
+    box-shadow: 0 4px 12px rgba(27, 59, 90, 0.03);
 }
 
 a {
-    color: #317A5A !important;
+    color: #367B8A !important;
+    font-weight: 600;
 }
 
-footer {
-    visibility: hidden;
+footer { visibility: hidden; }
+#MainMenu { visibility: hidden; }
+
+/* Màn hình chào mừng hiệu ứng gõ phím */
+@keyframes blinkCursor {
+    0%, 49% { border-color: #F3C66F; }
+    50%, 100% { border-color: transparent; }
 }
 
-#MainMenu {
-    visibility: hidden;
+.welcome-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: linear-gradient(135deg, #1B3B5A 0%, #2C667A 50%, #489E82 100%);
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 24px;
 }
 
+.typewriter-text {
+    color: #FFFFFF;
+    font-size: clamp(24px, 4vw, 42px);
+    font-weight: 800;
+    border-right: 4px solid #F3C66F;
+    padding-right: 8px;
+    animation: blinkCursor 0.75s infinite;
+    max-width: 90%;
+}
+
+.welcome-sub {
+    color: #F3C66F;
+    font-size: clamp(15px, 2vw, 20px);
+    font-weight: 600;
+    margin-top: 18px;
+    letter-spacing: 1.5px;
+}
 </style>
 """, unsafe_allow_html=True)
 
+# =========================================================
+# 4. MÀN HÌNH CHÀO MỪNG HIỆU ỨNG GÕ PHÍM
+# =========================================================
+
+if not st.session_state.welcomed:
+    splash = st.empty()
+    full_title = "CHẠM — Thấu hiểu để kết nối"
+    typed = ""
+    
+    for char in full_title:
+        typed += char
+        splash.markdown(f"""
+        <div class="welcome-overlay">
+            <div style="font-size: 68px; margin-bottom: 16px;">🤝</div>
+            <div class="typewriter-text">{html.escape(typed)}</div>
+            <div class="welcome-sub">KẾT NỐI ĐỂ SẺ CHIA • KHÔNG AI PHẢI ĐI MỘT MÌNH</div>
+        </div>
+        """, unsafe_allow_html=True)
+        time.sleep(0.055)
+        
+    time.sleep(1.1)
+    splash.empty()
+    st.session_state.welcomed = True
 
 # =========================================================
-# 4. HÀM HỖ TRỢ
+# 5. HÀM HỖ TRỢ
 # =========================================================
 
 def safe(value):
@@ -224,7 +321,7 @@ def render_logo(width=140):
                 font-size:32px;
                 font-weight:900;
                 letter-spacing:5px;
-                color:#C8E1CE;
+                color:#F3C66F;
                 padding:8px 0;
             ">CHẠM</div>
             """,
@@ -247,7 +344,7 @@ def panel(title, content, icon="🌿"):
         f"""
         <div class="panel">
             <div class="card-title">{icon} {safe(title)}</div>
-            <p>{content}</p>
+            <p style="color:#3B5266; margin-bottom:0;">{content}</p>
         </div>
         """,
         unsafe_allow_html=True
@@ -268,8 +365,8 @@ def render_footer():
     with c2:
         st.markdown("""
         <div style="padding-top:8px">
-            <b style="color:#27664D">CHẠM HUB</b><br>
-            <span style="font-size:12px;color:#81978A">
+            <b style="color:#1B3B5A">CHẠM HUB</b><br>
+            <span style="font-size:13px;color:#5A7184">
             Thấu hiểu để kết nối – Kết nối để sẻ chia.<br>
             Nội dung giáo dục và nâng cao nhận thức về Alzheimer.
             </span>
@@ -277,15 +374,8 @@ def render_footer():
         """, unsafe_allow_html=True)
 
 
-def progress_summary():
-    total = 7
-    done = len(st.session_state.completed)
-    st.progress(min(done / total, 1.0))
-    st.caption(f"Bạn đã hoàn thành {done}/{total} hoạt động khám phá.")
-
-
 # =========================================================
-# 5. THƯ VIỆN TRI THỨC
+# 6. THƯ VIỆN TRI THỨC
 # =========================================================
 
 KNOWLEDGE = {
@@ -403,7 +493,7 @@ KNOWLEDGE = {
 
 
 # =========================================================
-# 6. TÌNH HUỐNG CHĂM SÓC
+# 7. TÌNH HUỐNG CHĂM SÓC
 # =========================================================
 
 SCENARIOS = {
@@ -445,7 +535,7 @@ SCENARIOS = {
 
 
 # =========================================================
-# 7. BỘ THẺ TRẢI NGHIỆM
+# 8. BỘ THẺ TRẢI NGHIỆM
 # =========================================================
 
 CARDS = {
@@ -517,7 +607,7 @@ CARDS = {
 
 
 # =========================================================
-# 8. NGÂN HÀNG CÂU HỎI MINI-GAME
+# 9. NGÂN HÀNG CÂU HỎI MINI-GAME
 # =========================================================
 
 QUIZ = [
@@ -580,7 +670,7 @@ QUIZ = [
 
 
 # =========================================================
-# 9. SIDEBAR - ĐIỀU HƯỚNG
+# 10. SIDEBAR - ĐIỀU HƯỚNG
 # =========================================================
 
 PAGES = [
@@ -602,7 +692,7 @@ with st.sidebar:
     <div style="
         font-size:10px;
         letter-spacing:2px;
-        color:#B9D3C0;
+        color:#F3C66F;
         margin-bottom:22px;
     ">
         THẤU HIỂU ĐỂ KẾT NỐI
@@ -633,7 +723,7 @@ with st.sidebar:
 
 
 # =========================================================
-# 10. TRANG CHỦ
+# 11. TRANG CHỦ
 # =========================================================
 
 if page == "Trang chủ":
@@ -660,7 +750,7 @@ if page == "Trang chủ":
         <div style="padding:10px 0">
             <div class="small-label">WELCOME TO</div>
             <h1 style="margin-bottom:0">CHẠM HUB</h1>
-            <p style="color:#668575">
+            <p style="color:#5A7184">
             Nền tảng tri thức và trải nghiệm giáo dục
             về Alzheimer.
             </p>
@@ -721,12 +811,11 @@ if page == "Trang chủ":
     một môi trường sống nhân văn hơn.
     """)
 
-    # Sửa lỗi StreamlitWidgetAlreadyInstantiatedError bằng cách dùng thông báo hướng dẫn hoặc loại bỏ gán trực tiếp state widget
     st.info("👈 Hãy chọn chuyên mục ở menu bên trái (Sidebar) để bắt đầu hành trình khám phá!")
 
 
 # =========================================================
-# 11. KHÁM PHÁ ALZHEIMER
+# 12. KHÁM PHÁ ALZHEIMER
 # =========================================================
 
 elif page == "Khám phá Alzheimer":
@@ -765,7 +854,7 @@ elif page == "Khám phá Alzheimer":
 
 
 # =========================================================
-# 12. THƯ VIỆN TRI THỨC
+# 13. THƯ VIỆN TRI THỨC
 # =========================================================
 
 elif page == "Thư viện tri thức":
@@ -822,7 +911,7 @@ elif page == "Thư viện tri thức":
 
 
 # =========================================================
-# 13. NÃO BỘ VÀ TRÍ NHỚ
+# 14. NÃO BỘ VÀ TRÍ NHỚ
 # =========================================================
 
 elif page == "Não bộ và trí nhớ":
@@ -900,7 +989,7 @@ elif page == "Não bộ và trí nhớ":
     st.subheader("Tại sao ký ức có thể bị ảnh hưởng?")
 
     st.write("""
-    Trong Alzheimer, những thay đổi bệnh lý trong neuro có thể ảnh hưởng
+    Trong Alzheimer, những thay đổi bệnh lý trong não có thể ảnh hưởng
     đến tế bào thần kinh, sự truyền tín hiệu và hoạt động của các mạng
     lưới liên quan đến trí nhớ.
 
@@ -920,7 +1009,7 @@ elif page == "Não bộ và trí nhớ":
 
 
 # =========================================================
-# 14. CẨM NANG ĐỒNG HÀNH
+# 15. CẨM NANG ĐỒNG HÀNH
 # =========================================================
 
 elif page == "Cẩm nang đồng hành":
@@ -992,7 +1081,7 @@ elif page == "Cẩm nang đồng hành":
 
 
 # =========================================================
-# 15. TRẠM TRẢI NGHIỆM
+# 16. TRẠM TRẢI NGHIỆM
 # =========================================================
 
 elif page == "Trạm trải nghiệm":
@@ -1008,24 +1097,11 @@ elif page == "Trạm trải nghiệm":
         "🎯 Mini-game kiến thức"
     ])
 
-    # -----------------------------------------------------
-    # RÚT THẺ
-    # -----------------------------------------------------
-
     with tab1:
-
         st.subheader("Bộ thẻ CHẠM")
+        st.write("Chọn một nhóm thẻ, sau đó rút một tình huống để thử suy nghĩ và phản hồi.")
 
-        st.write(
-            "Chọn một nhóm thẻ, sau đó rút một tình huống "
-            "để thử suy nghĩ và phản hồi."
-        )
-
-        group = st.selectbox(
-            "Nhóm thẻ",
-            list(CARDS.keys()),
-            key="card_group"
-        )
+        group = st.selectbox("Nhóm thẻ", list(CARDS.keys()), key="card_group")
 
         if st.button("RÚT MỘT THẺ", type="primary"):
             card = random.choice(CARDS[group])
@@ -1069,28 +1145,14 @@ elif page == "Trạm trải nghiệm":
                 else:
                     st.warning("Bạn hãy nhập suy nghĩ trước.")
 
-    # -----------------------------------------------------
-    # MINI GAME
-    # -----------------------------------------------------
-
     with tab2:
-
         st.subheader("Thử thách kiến thức")
-
         total = len(QUIZ)
 
         if st.session_state.quiz_index >= total:
             st.success("Bạn đã hoàn thành toàn bộ câu hỏi!")
-
-            st.metric(
-                "Điểm số",
-                f'{st.session_state.score}/{total}'
-            )
-
-            st.progress(
-                st.session_state.score / total
-                if total else 0
-            )
+            st.metric("Điểm số", f'{st.session_state.score}/{total}')
+            st.progress(st.session_state.score / total if total else 0)
 
             if st.button("Chơi lại"):
                 st.session_state.quiz_index = 0
@@ -1099,13 +1161,11 @@ elif page == "Trạm trải nghiệm":
                 st.session_state.quiz_answer = None
                 st.session_state.score = 0
                 st.rerun()
-
         else:
             idx = st.session_state.quiz_index
             q = QUIZ[idx]
 
             st.progress(idx / total)
-
             st.caption(f"CÂU HỎI {idx+1}/{total}")
 
             st.markdown(f"""
@@ -1115,18 +1175,9 @@ elif page == "Trạm trải nghiệm":
             </div>
             """, unsafe_allow_html=True)
 
-            choice = st.radio(
-                "Chọn câu trả lời",
-                q["options"],
-                key=f"quiz_choice_{idx}",
-                index=None
-            )
+            choice = st.radio("Chọn câu trả lời", q["options"], key=f"quiz_choice_{idx}", index=None)
 
-            if st.button(
-                "XÁC NHẬN ĐÁP ÁN",
-                type="primary",
-                key=f"submit_quiz_{idx}"
-            ):
+            if st.button("XÁC NHẬN ĐÁP ÁN", type="primary", key=f"submit_quiz_{idx}"):
                 if choice is None:
                     st.warning("Bạn hãy chọn một đáp án.")
                 else:
@@ -1146,34 +1197,24 @@ elif page == "Trạm trải nghiệm":
 
             if st.session_state.quiz_feedback is not None:
                 feedback = st.session_state.quiz_feedback
-
                 if feedback["correct"]:
                     st.success("Chính xác! Bạn đã chọn đáp án đúng.")
                 else:
-                    st.error(
-                        "Chưa chính xác. Đáp án đúng là: "
-                        + q["options"][q["answer"]]
-                    )
+                    st.error("Chưa chính xác. Đáp án đúng là: " + q["options"][q["answer"]])
 
                 st.info(feedback["explain"])
 
-                if st.button(
-                    "CÂU TIẾP THEO →",
-                    type="primary",
-                    key=f"next_quiz_{idx}"
-                ):
+                if st.button("CÂU TIẾP THEO →", type="primary", key=f"next_quiz_{idx}"):
                     st.session_state.quiz_index += 1
                     st.session_state.quiz_feedback = None
                     st.session_state.quiz_answer = None
                     st.rerun()
 
-            st.caption(
-                f"Điểm hiện tại: {st.session_state.score}"
-            )
+            st.caption(f"Điểm hiện tại: {st.session_state.score}")
 
 
 # =========================================================
-# 16. HÀNH TRÌNH THẤU CẢM
+# 17. HÀNH TRÌNH THẤU CẢM
 # =========================================================
 
 elif page == "Hành trình thấu cảm":
@@ -1208,21 +1249,17 @@ elif page == "Hành trình thấu cảm":
     """, unsafe_allow_html=True)
 
     st.metric("Hoạt động đã ghi nhận", f"{completed}/7")
-
     st.progress(min(completed / 7, 1.0))
 
     for key, title, description in activities:
         done = key in st.session_state.completed
-
         icon = "✅" if done else "○"
 
         st.markdown(
             f"""
             <div class="panel">
                 <b>{icon} {safe(title)}</b><br>
-                <span style="color:#81978A">
-                    {safe(description)}
-                </span>
+                <span style="color:#5A7184">{safe(description)}</span>
             </div>
             """,
             unsafe_allow_html=True
@@ -1238,12 +1275,11 @@ elif page == "Hành trình thấu cảm":
     if st.button("Ghi nhận hoàn thành hành trình"):
         for key, _, _ in activities:
             st.session_state.completed.add(key)
-
         st.success("Bạn đã ghi nhận hành trình trải nghiệm!")
 
 
 # =========================================================
-# 17. KHÔNG GIAN SẺ CHIA
+# 18. KHÔNG GIAN SẺ CHIA
 # =========================================================
 
 elif page == "Không gian sẻ chia":
@@ -1268,19 +1304,9 @@ elif page == "Không gian sẻ chia":
     ])
 
     with tab1:
-
         st.subheader("Nhật ký của tôi")
-
-        journal_title = st.text_input(
-            "Tiêu đề",
-            placeholder="Một điều tôi nhận ra hôm nay..."
-        )
-
-        journal_content = st.text_area(
-            "Nội dung",
-            placeholder="Hãy viết những suy nghĩ của bạn...",
-            height=150
-        )
+        journal_title = st.text_input("Tiêu đề", placeholder="Một điều tôi nhận ra hôm nay...")
+        journal_content = st.text_area("Nội dung", placeholder="Hãy viết những suy nghĩ của bạn...", height=150)
 
         if st.button("Lưu vào nhật ký", type="primary"):
             if journal_title.strip() and journal_content.strip():
@@ -1299,27 +1325,14 @@ elif page == "Không gian sẻ chia":
         if not st.session_state.journal:
             st.info("Bạn chưa có ghi chép nào.")
         else:
-            for i, item in enumerate(
-                reversed(st.session_state.journal)
-            ):
+            for item in reversed(st.session_state.journal):
                 with st.expander(item["title"]):
                     st.write(item["content"])
 
     with tab2:
-
         st.subheader("Gửi một thông điệp")
-
-        nickname = st.text_input(
-            "Tên hiển thị",
-            value="Một người bạn CHẠM",
-            key="community_name"
-        )
-
-        message = st.text_area(
-            "Thông điệp của bạn",
-            placeholder="Hãy chia sẻ một điều tích cực...",
-            key="community_message"
-        )
+        nickname = st.text_input("Tên hiển thị", value="Một người bạn CHẠM", key="community_name")
+        message = st.text_area("Thông điệp của bạn", placeholder="Hãy chia sẻ một điều tích cực...", key="community_message")
 
         if st.button("Đăng thông điệp"):
             if nickname.strip() and message.strip():
@@ -1340,33 +1353,26 @@ elif page == "Không gian sẻ chia":
         st.subheader("Những thông điệp từ cộng đồng")
 
         if not st.session_state.community:
-            st.info(
-                "Chưa có thông điệp nào trong phiên truy cập này. "
-                "Hãy là người đầu tiên chia sẻ!"
-            )
+            st.info("Chưa có thông điệp nào trong phiên truy cập này. Hãy là người đầu tiên chia sẻ!")
 
-        for i, post in enumerate(st.session_state.community):
+        for post in st.session_state.community:
             st.markdown(
                 f"""
                 <div class="panel">
-                    <div style="color:#39785F;font-weight:800">
+                    <div style="color:#489E82;font-weight:800">
                         💚 {safe(post["name"])}
                     </div>
-                    <p>{safe(post["message"])}</p>
+                    <p style="color:#3B5266; margin-bottom:0;">{safe(post["message"])}</p>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
-        st.warning(
-            "Lưu ý: Nội dung nhật ký và góc chia sẻ hiện được lưu "
-            "trong session_state của phiên truy cập. Chưa có cơ sở dữ liệu "
-            "dùng chung nên chưa thể chia sẻ giữa các người dùng khác nhau."
-        )
+        st.warning("Lưu ý: Nội dung nhật ký và góc chia sẻ hiện được lưu trong session_state của phiên truy cập.")
 
 
 # =========================================================
-# 18. NGUỒN THAM KHẢO
+# 19. NGUỒN THAM KHẢO
 # =========================================================
 
 elif page == "Nguồn tham khảo":
@@ -1405,10 +1411,8 @@ elif page == "Nguồn tham khảo":
             f"""
             <div class="panel">
                 <h3>📖 {safe(name)}</h3>
-                <p>{safe(description)}</p>
-                <a href="{url}" target="_blank">
-                    Truy cập tài liệu →
-                </a>
+                <p style="color:#3B5266;">{safe(description)}</p>
+                <a href="{url}" target="_blank">Truy cập tài liệu →</a>
             </div>
             """,
             unsafe_allow_html=True
@@ -1416,20 +1420,13 @@ elif page == "Nguồn tham khảo":
 
     st.markdown("---")
     st.subheader("Lưu ý về nội dung")
-
     st.write("""
     CHẠM Hub là nền tảng giáo dục và nâng cao nhận thức.
-    Nội dung không nhằm thay thế chẩn đoán, điều trị hoặc tư vấn
-    chuyên môn từ bác sĩ.
-
-    Các ví dụ tình huống trong nền tảng mang tính minh họa.
-    Người chăm sóc cần cân nhắc hoàn cảnh, nhu cầu và sự an toàn
-    của từng người bệnh.
+    Nội dung không nhằm thay thế chẩn đoán, điều trị hoặc tư vấn chuyên môn từ bác sĩ.
     """)
 
-
 # =========================================================
-# 19. CHÂN TRANG
+# 20. CHÂN TRANG
 # =========================================================
 
 render_footer()
