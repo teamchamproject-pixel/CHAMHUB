@@ -1,14 +1,12 @@
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-import random
-from datetime import datetime
 
-# ============================================================
-# CHẠM HUB — BẢN NÂNG CẤP GIAO DIỆN & TƯƠNG TÁC
-# Prototype Streamlit. Dữ liệu nhật ký/bức tường hiện lưu trong
-# session_state của từng phiên, chưa phải hệ thống đa người dùng.
-# ============================================================
+from pathlib import Path
+import random
+import html
+import streamlit as st
+
+# =========================================================
+# 1. CẤU HÌNH WEBSITE
+# =========================================================
 
 st.set_page_config(
     page_title="CHẠM Hub | Thấu hiểu để kết nối",
@@ -17,327 +15,1423 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --------------------------- DESIGN SYSTEM ---------------------------
+BASE_DIR = Path(__file__).parent
+ASSET_DIR = BASE_DIR / "assets"
+LOGO_PATH = ASSET_DIR / "logo_cham.png"
+
+# =========================================================
+# 2. DỮ LIỆU VÀ TRẠNG THÁI
+# =========================================================
+
+if "journal" not in st.session_state:
+    st.session_state.journal = []
+
+if "community" not in st.session_state:
+    st.session_state.community = []
+
+if "completed" not in st.session_state:
+    st.session_state.completed = set()
+
+if "score" not in st.session_state:
+    st.session_state.score = 0
+
+if "drawn_cards" not in st.session_state:
+    st.session_state.drawn_cards = []
+
+if "quiz_index" not in st.session_state:
+    st.session_state.quiz_index = 0
+
+if "quiz_feedback" not in st.session_state:
+    st.session_state.quiz_feedback = None
+
+if "quiz_results" not in st.session_state:
+    st.session_state.quiz_results = {}
+
+if "quiz_answer" not in st.session_state:
+    st.session_state.quiz_answer = None
+
+# =========================================================
+# 3. GIAO DIỆN
+# =========================================================
+
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap');
-html, body, [class*="css"] { font-family: 'Be Vietnam Pro', sans-serif; }
-.stApp { background: #F5F7F6; color: #18324A; }
-[data-testid="stSidebar"] { background: #18324A; }
-[data-testid="stSidebar"] * { color: #F7FAF8 !important; }
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.stApp {
+    background: #F5F8F5;
+}
+
+section[data-testid="stSidebar"] {
+    background: #102D2A;
+    border-right: 1px solid #254B42;
+}
+
+section[data-testid="stSidebar"] * {
+    color: #F3F8F4 !important;
+}
+
+section[data-testid="stSidebar"] .stRadio label {
+    font-size: 14px;
+}
+
+section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+    color: #D5E4DA !important;
+}
+
+h1, h2, h3 {
+    color: #173F35;
+    font-weight: 800;
+}
+
+p {
+    line-height: 1.75;
+}
+
 .hero {
-  padding: 2.1rem 2.2rem; border-radius: 24px; color: white;
-  background: linear-gradient(120deg,#18324A 0%,#28566A 55%,#2D6A4F 100%);
-  margin-bottom: 1.2rem; position: relative; overflow: hidden;
+    background: linear-gradient(120deg, #102F2B, #245C4A);
+    padding: 42px;
+    border-radius: 24px;
+    color: white;
+    margin-bottom: 26px;
+    box-shadow: 0 12px 35px rgba(20,60,45,0.12);
 }
-.hero h1 { color: white; font-size: clamp(2rem,4vw,3.2rem); margin:0; font-weight:800; }
-.hero p { color:#E7F2EC; font-size:1.05rem; margin:.5rem 0 0 0; }
-.eyebrow { color:#F2C66D; letter-spacing:.16em; font-weight:700; font-size:.78rem; }
+
+.hero h1 {
+    color: white;
+    font-size: 42px;
+    margin-bottom: 8px;
+}
+
+.hero p {
+    color: #DCECE1;
+    font-size: 16px;
+}
+
+.eyebrow {
+    color: #C7DDAF;
+    letter-spacing: 3px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
 .panel {
-  background:white; padding:1.15rem 1.25rem; border-radius:18px;
-  border:1px solid #E5ECE8; box-shadow:0 7px 22px rgba(24,50,74,.045);
-  margin-bottom:.8rem;
+    background: white;
+    border: 1px solid #E2EBE3;
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(20,50,35,0.035);
 }
-.panel h3 { margin-top:0; color:#18324A; }
-.soft { color:#61736C; font-size:.92rem; }
-.pill { display:inline-block; padding:.28rem .7rem; border-radius:999px;
-  background:#E4F1EA; color:#27634C; font-size:.78rem; font-weight:700; }
+
+.panel h3 {
+    margin-top: 0;
+}
+
+.green-panel {
+    background: #E8F2EA;
+    border-left: 5px solid #438568;
+    border-radius: 13px;
+    padding: 19px;
+    margin: 12px 0;
+}
+
+.gold-panel {
+    background: #F8F1DF;
+    border-left: 5px solid #C9A65A;
+    border-radius: 13px;
+    padding: 19px;
+    margin: 12px 0;
+}
+
 .quote {
-  padding:1rem 1.2rem; border-left:5px solid #D18A55; border-radius:12px;
-  background:#FFF6ED; color:#65472F; font-style:italic;
+    background: #EAF2EB;
+    border-radius: 16px;
+    padding: 25px;
+    font-size: 19px;
+    color: #285D49;
+    font-weight: 600;
+    text-align: center;
+    margin: 22px 0;
 }
-.step {
-  border-radius:15px; background:#EAF2F5; padding:1rem; height:100%;
-  border:1px solid #DCE8ED;
+
+.small-label {
+    font-size: 11px;
+    color: #769083;
+    letter-spacing: 1.5px;
+    font-weight: 800;
 }
+
+.card-title {
+    font-size: 21px;
+    font-weight: 800;
+    color: #214D3E;
+}
+
+.stButton > button {
+    border-radius: 10px;
+    font-weight: 700;
+    border: 1px solid #BBD2C0;
+    min-height: 42px;
+}
+
+.stButton > button[kind="primary"] {
+    background: #27664D;
+    border-color: #27664D;
+}
+
 div[data-testid="stMetric"] {
-  background:white; border:1px solid #E5ECE8; padding:14px 16px;
-  border-radius:16px;
+    background: white;
+    padding: 15px;
+    border-radius: 15px;
+    border: 1px solid #E4ECE5;
 }
-.stButton button { border-radius:12px; font-weight:700; min-height:2.7rem; }
-hr { border-color:#E5ECE8; }
-footer {visibility:hidden;}
+
+a {
+    color: #317A5A !important;
+}
+
+footer {
+    visibility: hidden;
+}
+
+#MainMenu {
+    visibility: hidden;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
-# --------------------------- DATA ---------------------------
-CARD_DECK = [
-    {"code":"KT-01","group":"Kiến thức","title":"Quên thông thường và dấu hiệu cần lưu ý",
-     "scenario":"Một người thường xuyên quên những việc vừa xảy ra và gặp khó khăn khi thực hiện công việc quen thuộc.",
-     "task":"Theo bạn, gia đình nên làm gì?",
-     "choices":["A. Kết luận ngay người đó mắc Alzheimer.","B. Theo dõi biểu hiện, trao đổi với người thân và khuyến khích đi khám chuyên môn.","C. Bỏ qua vì ai lớn tuổi cũng sẽ như vậy."],
-     "answer":1,"why":"Không thể tự chẩn đoán Alzheimer qua một biểu hiện đơn lẻ. Suy giảm trí nhớ ảnh hưởng sinh hoạt cần được nhân viên y tế đánh giá."},
-    {"code":"KT-02","group":"Kiến thức","title":"Alzheimer ảnh hưởng đến điều gì?",
-     "scenario":"Một bạn hỏi Alzheimer có chỉ ảnh hưởng đến trí nhớ hay không.",
-     "task":"Chọn nhận định phù hợp nhất.",
-     "choices":["A. Chỉ ảnh hưởng khả năng ghi nhớ.","B. Có thể ảnh hưởng trí nhớ, tư duy, ngôn ngữ và sinh hoạt hằng ngày.","C. Chỉ ảnh hưởng thể chất."],
-     "answer":1,"why":"Alzheimer là bệnh tiến triển ảnh hưởng nhiều chức năng nhận thức, không chỉ riêng trí nhớ."},
-    {"code":"GN-01","group":"Góc nhìn","title":"Câu hỏi được lặp lại",
-     "scenario":"Bà hỏi bạn lần thứ tư: “Mấy giờ mẹ con về?”.",
-     "task":"Cách phản hồi nào thể hiện sự tôn trọng?",
-     "choices":["A. “Con trả lời rồi mà!”","B. Nhẹ nhàng trả lời lại, có thể viết giờ về ở nơi dễ nhìn.","C. Im lặng bỏ đi."],
-     "answer":1,"why":"Trả lời bình tĩnh và dùng gợi ý trực quan có thể giúp người bệnh bớt lo lắng."},
-    {"code":"GN-02","group":"Góc nhìn","title":"Khi người thân cảm thấy bối rối",
-     "scenario":"Ông không nhận ra một món đồ quen thuộc và tỏ ra xấu hổ.",
-     "task":"Bạn nên làm gì?",
-     "choices":["A. Trêu đùa để ông vui.","B. Bình tĩnh hỗ trợ, tránh làm ông mất mặt trước người khác.","C. Nói rằng ông không còn tự làm được gì."],
-     "answer":1,"why":"Giữ phẩm giá và tránh làm người bệnh xấu hổ là nguyên tắc quan trọng trong giao tiếp."},
-    {"code":"NC-01","group":"Nghiên cứu","title":"Kiểm chứng thông tin",
-     "scenario":"Nhóm tìm thấy một bài đăng mạng xã hội khẳng định có cách chữa khỏi Alzheimer.",
-     "task":"Bước phù hợp nhất là gì?",
-     "choices":["A. Chia sẻ ngay để nhiều người biết.","B. Kiểm tra nguồn y tế đáng tin cậy và không xem bài đăng là kết luận khoa học.","C. Đưa vào trò chơi nếu bài viết có nhiều lượt thích."],
-     "answer":1,"why":"Thông tin sức khỏe cần được đối chiếu với nguồn chuyên môn đáng tin cậy."},
-    {"code":"CN-01","group":"Công nghệ","title":"Công cụ nhắc lịch",
-     "scenario":"Gia đình muốn hỗ trợ người thân nhớ lịch sinh hoạt hằng ngày.",
-     "task":"Giải pháp nào có thể cân nhắc?",
-     "choices":["A. Lịch trực quan hoặc lời nhắc đơn giản, phù hợp với khả năng của người sử dụng.","B. Cài ứng dụng phức tạp mà không hướng dẫn.","C. Công khai lịch và thông tin cá nhân lên mạng."],
-     "answer":0,"why":"Công nghệ nên dễ sử dụng, phù hợp nhu cầu và bảo vệ quyền riêng tư."},
-    {"code":"CS-01","group":"Chăm sóc – Cộng đồng","title":"Hỗ trợ khi người thân lo lắng",
-     "scenario":"Mẹ có vẻ lo lắng khi không tìm thấy chiếc ví.",
-     "task":"Bạn nên bắt đầu thế nào?",
-     "choices":["A. Tranh cãi rằng mẹ đãng trí.","B. Thừa nhận cảm xúc lo lắng và bình tĩnh cùng tìm ở những nơi quen thuộc.","C. Giấu chuyện để mẹ khỏi hỏi."],
-     "answer":1,"why":"Lắng nghe cảm xúc và hỗ trợ tìm kiếm thường hữu ích hơn tranh cãi đúng sai."},
-    {"code":"HT-01","group":"Hợp tác","title":"Một khu phố quan tâm",
-     "scenario":"Một nhóm học sinh muốn xây dựng hoạt động nâng cao nhận thức tại khu dân cư.",
-     "task":"Việc nào nên được ưu tiên?",
-     "choices":["A. Tự ý công bố thông tin của một gia đình có người mắc bệnh.","B. Phối hợp với nhà trường, gia đình và đơn vị phù hợp; xin phép trước khi chia sẻ câu chuyện.","C. Tổ chức hoạt động mà không cần kiểm chứng nội dung."],
-     "answer":1,"why":"Hoạt động cộng đồng cần tôn trọng quyền riêng tư, có sự đồng thuận và sử dụng thông tin chính xác."},
-    {"code":"TC-01","group":"Thử thách","title":"Từ chối tắm",
-     "scenario":"Người thân từ chối tắm và có vẻ sợ hãi.",
-     "task":"Bạn sẽ thử cách nào trước?",
-     "choices":["A. Ép buộc ngay lập tức.","B. Tìm hiểu điều khiến họ khó chịu, chọn thời điểm phù hợp và giải thích từng bước nhẹ nhàng.","C. Quát mắng để họ nghe lời."],
-     "answer":1,"why":"Tìm nguyên nhân gây khó chịu, bảo đảm riêng tư và điều chỉnh cách hỗ trợ có thể giảm căng thẳng."},
-    {"code":"TG-01","group":"Thời gian – Sự kiện","title":"Ngày hội nhận thức",
-     "scenario":"Trường tổ chức ngày hội tìm hiểu về Alzheimer.",
-     "task":"Thông điệp nào phù hợp với tinh thần CHẠM?",
-     "choices":["A. Người mắc bệnh không còn khả năng đóng góp.","B. Mỗi người đều xứng đáng được tôn trọng, lắng nghe và hỗ trợ.","C. Gia đình phải tự giải quyết mọi khó khăn."],
-     "answer":1,"why":"CHẠM hướng đến thấu hiểu, kết nối và thúc đẩy sự tham gia của cộng đồng."}
-]
 
-GUIDES = [
-    {"name":"Lặp lại câu hỏi","tag":"Giao tiếp","problem":"Người thân hỏi cùng một câu nhiều lần trong thời gian ngắn.",
-     "avoid":"Trách móc, quát mắng hoặc cố chứng minh rằng họ đã được trả lời.",
-     "try":"Trả lời ngắn gọn, bình tĩnh; dùng lịch, đồng hồ hoặc ghi chú dễ nhìn; thử chuyển sang hoạt động quen thuộc nếu phù hợp.",
-     "note":"Nếu thay đổi hành vi xuất hiện đột ngột hoặc đi kèm dấu hiệu bất thường, gia đình nên tìm tư vấn y tế."},
-    {"name":"Lo lắng vì thất lạc đồ","tag":"Cảm xúc","problem":"Người thân tin rằng ai đó đã lấy đồ của mình.",
-     "avoid":"Đôi co, chế giễu hoặc buộc tội ngược lại.",
-     "try":"Lắng nghe cảm xúc, trấn an và cùng tìm ở những nơi thường đặt đồ. Có thể bố trí một vị trí cất đồ cố định.",
-     "note":"Nếu tình trạng nghi ngờ gây nguy hiểm hoặc căng thẳng kéo dài, nên trao đổi với nhân viên y tế."},
-    {"name":"Bối rối vào chiều tối","tag":"An toàn","problem":"Người thân trở nên bồn chồn hoặc mất định hướng vào cuối ngày.",
-     "avoid":"Quát mắng, bỏ mặc hoặc sử dụng biện pháp khóa nhốt gây nguy hiểm.",
-     "try":"Giữ lịch sinh hoạt đều đặn, giảm tiếng ồn, bảo đảm ánh sáng và kiểm tra các nguy cơ mất an toàn trong nhà.",
-     "note":"Cần có kế hoạch an toàn phù hợp với từng người; không áp dụng một biện pháp khóa cửa cho mọi gia đình."},
-    {"name":"Từ chối tắm rửa","tag":"Sinh hoạt","problem":"Người thân từ chối tắm hoặc trở nên căng thẳng khi được hỗ trợ.",
-     "avoid":"Ép buộc, kéo giật hoặc làm người đó xấu hổ.",
-     "try":"Tìm hiểu nguyên nhân như lạnh, sợ trượt ngã, thiếu riêng tư; chuẩn bị trước vật dụng và hướng dẫn từng bước.",
-     "note":"Nếu có đau, khó nuốt, sụt cân hoặc vấn đề sức khỏe khác, cần xin tư vấn chuyên môn."}
-]
+# =========================================================
+# 4. HÀM HỖ TRỢ
+# =========================================================
 
-SOURCES = [
-    ("WHO — Dementia","https://www.who.int/news-room/fact-sheets/detail/dementia"),
-    ("NIA — Alzheimer’s Symptoms and Diagnosis","https://www.nia.nih.gov/health/alzheimers-symptoms-and-diagnosis"),
-    ("CDC — Signs and Symptoms of Alzheimer’s","https://www.cdc.gov/alzheimers-dementia/signs-symptoms/alzheimers.html"),
-    ("NHS — Communicating with Someone with Dementia","https://www.nhs.uk/conditions/dementia/living-with-dementia/communication/"),
-    ("NIA — Alzheimer’s Caregiving","https://www.nia.nih.gov/health/alzheimers-caregiving"),
-    ("WHO — Dementia-Friendly Initiatives Toolkit","https://www.who.int/publications/i/item/9789240031531"),
-    ("ADI — Dementia Friendly Communities","https://www.alzint.org/what-we-do/policy/dementia-friendly-communities/"),
-    ("ADI — World Alzheimer Report 2024","https://www.alzint.org/resource/world-alzheimer-report-2024/")
-]
+def safe(value):
+    return html.escape(str(value))
 
-# --------------------------- SESSION STATE ---------------------------
-defaults = {
-    "visited": False, "drawn_card": None, "quiz_score": 0,
-    "quiz_done": [], "journal": [], "wall": [], "guide_feedback": {}
-}
-for key, value in defaults.items():
-    if key not in st.session_state:
-        st.session_state[key] = value
 
-# --------------------------- SIDEBAR ---------------------------
-with st.sidebar:
-    st.markdown("<div style='text-align:center;font-size:3rem'>🪷</div>", unsafe_allow_html=True)
-    st.markdown("<h2 style='text-align:center;color:white'>CHẠM HUB</h2>", unsafe_allow_html=True)
-    st.caption("THẤU HIỂU ĐỂ KẾT NỐI")
-    st.divider()
-    page = st.radio(
-        "KHÔNG GIAN TRẢI NGHIỆM",
-        ["🏠 Trang chủ","📊 Hiểu về Alzheimer","🧭 Cẩm nang đồng hành",
-         "🎲 Trạm trải nghiệm","💌 Không gian sẻ chia","📚 Nguồn tham khảo"],
-        label_visibility="visible"
+def render_logo(width=140):
+    if LOGO_PATH.exists():
+        st.image(str(LOGO_PATH), width=width)
+    else:
+        st.markdown(
+            """
+            <div style="
+                font-size:32px;
+                font-weight:900;
+                letter-spacing:5px;
+                color:#C8E1CE;
+                padding:8px 0;
+            ">CHẠM</div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+def section_title(eyebrow, title, description=None):
+    st.markdown(
+        f'<div class="small-label">{safe(eyebrow.upper())}</div>',
+        unsafe_allow_html=True
     )
-    st.divider()
-    st.markdown("**Thông điệp CHẠM**")
-    st.markdown("*Không ai phải đi một mình.*")
-    st.caption("Phiên bản trải nghiệm — nội dung giáo dục, không thay thế tư vấn y tế.")
+    st.title(title)
+    if description:
+        st.write(description)
 
-def hero(kicker, title, subtitle):
+
+def panel(title, content, icon="🌿"):
+    st.markdown(
+        f"""
+        <div class="panel">
+            <div class="card-title">{icon} {safe(title)}</div>
+            <p>{content}</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+def mark_complete(name):
+    st.session_state.completed.add(name)
+
+
+def render_footer():
+    st.markdown("---")
+    c1, c2 = st.columns([1, 5])
+
+    with c1:
+        render_logo(75)
+
+    with c2:
+        st.markdown("""
+        <div style="padding-top:8px">
+            <b style="color:#27664D">CHẠM HUB</b><br>
+            <span style="font-size:12px;color:#81978A">
+            Thấu hiểu để kết nối – Kết nối để sẻ chia.<br>
+            Nội dung giáo dục và nâng cao nhận thức về Alzheimer.
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+
+
+def progress_summary():
+    total = 7
+    done = len(st.session_state.completed)
+    st.progress(min(done / total, 1.0))
+    st.caption(f"Bạn đã hoàn thành {done}/{total} hoạt động khám phá.")
+
+
+# =========================================================
+# 5. THƯ VIỆN TRI THỨC
+# =========================================================
+
+KNOWLEDGE = {
+    "Alzheimer là gì?": {
+        "tag": "KIẾN THỨC CƠ BẢN",
+        "intro": "Alzheimer là một bệnh lý thần kinh tiến triển, ảnh hưởng đến trí nhớ, tư duy và khả năng thực hiện các hoạt động thường ngày.",
+        "sections": [
+            (
+                "Alzheimer có phải là lão hóa thông thường?",
+                "Không. Một số thay đổi trí nhớ có thể xuất hiện khi tuổi tác tăng lên, nhưng Alzheimer không phải là hệ quả tất yếu của quá trình lão hóa. Bệnh có thể gây suy giảm nhận thức ngày càng rõ rệt và ảnh hưởng đến cuộc sống."
+            ),
+            (
+                "Điều gì xảy ra trong não bộ?",
+                "Bệnh có liên quan đến những thay đổi sinh học trong não, bao gồm sự tích tụ bất thường của protein amyloid và tau. Những thay đổi này có thể làm tổn thương tế bào thần kinh và ảnh hưởng đến mạng lưới liên kết giữa chúng."
+            ),
+            (
+                "Alzheimer có giống mọi dạng sa sút trí tuệ?",
+                "Không. Sa sút trí tuệ là thuật ngữ chung mô tả hội chứng suy giảm nhận thức ảnh hưởng đến sinh hoạt. Alzheimer là một trong những nguyên nhân phổ biến của hội chứng này."
+            )
+        ]
+    },
+
+    "Dấu hiệu nhận biết": {
+        "tag": "NHẬN DIỆN",
+        "intro": "Biểu hiện có thể khác nhau giữa mỗi người và thường tiến triển theo thời gian.",
+        "sections": [
+            (
+                "Khó ghi nhớ thông tin mới",
+                "Người bệnh có thể thường xuyên quên những sự việc vừa xảy ra, lặp lại câu hỏi hoặc cần nhiều sự nhắc nhở hơn trước."
+            ),
+            (
+                "Khó thực hiện công việc quen thuộc",
+                "Một số công việc từng rất quen thuộc có thể trở nên khó khăn, chẳng hạn chuẩn bị bữa ăn hoặc quản lý các bước trong một hoạt động."
+            ),
+            (
+                "Nhầm lẫn về thời gian và địa điểm",
+                "Người bệnh có thể gặp khó khăn trong việc xác định ngày tháng, nơi đang ở hoặc tìm đường đến địa điểm quen thuộc."
+            ),
+            (
+                "Thay đổi cảm xúc và hành vi",
+                "Có thể xuất hiện sự lo lắng, dễ kích động, thu mình hoặc thay đổi cách phản ứng trong những tình huống quen thuộc."
+            )
+        ]
+    },
+
+    "Các yếu tố nguy cơ": {
+        "tag": "PHÒNG NGỪA VÀ SỨC KHỎE",
+        "intro": "Nguy cơ mắc bệnh chịu ảnh hưởng của nhiều yếu tố. Không có một nguyên nhân đơn lẻ giải thích mọi trường hợp.",
+        "sections": [
+            (
+                "Tuổi tác",
+                "Tuổi cao là yếu tố nguy cơ quan trọng nhất đã được xác định, nhưng Alzheimer không phải là điều chắc chắn xảy ra khi một người già đi."
+            ),
+            (
+                "Di truyền và tiền sử gia đình",
+                "Một số biến thể gene có thể làm thay đổi nguy cơ. Tuy nhiên, có người có tiền sử gia đình mắc bệnh nhưng không phát triển bệnh."
+            ),
+            (
+                "Sức khỏe tim mạch và chuyển hóa",
+                "Huyết áp cao, đái tháo đường, hút thuốc và một số yếu tố sức khỏe khác có liên quan đến sức khỏe não bộ."
+            ),
+            (
+                "Lối sống và môi trường",
+                "Vận động thể chất, chế độ ăn cân bằng, giấc ngủ, giao tiếp xã hội và kiểm soát các yếu tố nguy cơ có thể góp phần bảo vệ sức khỏe nhận thức."
+            )
+        ]
+    },
+
+    "Chẩn đoán và hỗ trợ": {
+        "tag": "HIỂU ĐÚNG",
+        "intro": "Việc đánh giá cần được thực hiện bởi nhân viên y tế có chuyên môn, dựa trên nhiều nguồn thông tin.",
+        "sections": [
+            (
+                "Quy trình đánh giá",
+                "Bác sĩ có thể khai thác bệnh sử, trao đổi với người thân, thực hiện đánh giá nhận thức và chỉ định xét nghiệm hoặc chẩn đoán hình ảnh khi phù hợp."
+            ),
+            (
+                "Vì sao cần phát hiện sớm?",
+                "Đánh giá sớm giúp xác định nguyên nhân có thể điều trị, lập kế hoạch chăm sóc và tiếp cận các hình thức hỗ trợ phù hợp."
+            ),
+            (
+                "Điều trị và quản lý",
+                "Một số phương pháp có thể hỗ trợ kiểm soát triệu chứng hoặc làm chậm tiến triển ở nhóm người bệnh phù hợp. Hiệu quả và chỉ định cần được bác sĩ đánh giá."
+            ),
+            (
+                "Vai trò của gia đình",
+                "Gia đình có thể hỗ trợ người bệnh duy trì thói quen, đảm bảo an toàn, tham gia hoạt động phù hợp và giữ kết nối xã hội."
+            )
+        ]
+    },
+
+    "Giao tiếp và thấu hiểu": {
+        "tag": "ĐỒNG HÀNH",
+        "intro": "Giao tiếp với người mắc Alzheimer cần sự kiên nhẫn, tôn trọng và chú ý đến cảm xúc.",
+        "sections": [
+            (
+                "Nói chậm và rõ ràng",
+                "Sử dụng câu ngắn, mỗi lần tập trung vào một ý. Cho người đối diện đủ thời gian để tiếp nhận và phản hồi."
+            ),
+            (
+                "Không tranh cãi về ký ức",
+                "Khi người bệnh nhầm lẫn, hãy bình tĩnh và chú ý đến cảm xúc phía sau câu nói thay vì cố gắng chứng minh họ sai."
+            ),
+            (
+                "Tôn trọng quyền lựa chọn",
+                "Khuyến khích người bệnh tham gia quyết định trong khả năng của họ. Không nên mặc định rằng họ không thể tự lựa chọn."
+            ),
+            (
+                "Duy trì sự kết nối",
+                "Âm nhạc, ảnh gia đình, hoạt động quen thuộc và những cuộc trò chuyện nhẹ nhàng có thể giúp duy trì cảm giác gần gũi."
+            )
+        ]
+    }
+}
+
+
+# =========================================================
+# 6. TÌNH HUỐNG CHĂM SÓC
+# =========================================================
+
+SCENARIOS = {
+    "Người thân liên tục hỏi cùng một câu": {
+        "possible": "Người bệnh có thể không ghi nhớ được câu trả lời vừa nhận. Việc hỏi lại đôi khi xuất phát từ lo lắng hoặc nhu cầu được trấn an.",
+        "avoid": "Tránh quát mắng, tỏ ra khó chịu hoặc nói rằng người bệnh đã hỏi quá nhiều lần.",
+        "try": "Trả lời nhẹ nhàng, ngắn gọn. Có thể dùng giấy ghi chú, lịch hoặc vật dụng gợi nhắc để hỗ trợ.",
+        "example": "Thay vì nói: 'Con đã nói rồi mà!', hãy thử: 'Mẹ yên tâm nhé, hôm nay mình chưa có lịch đi đâu cả.'"
+    },
+
+    "Người thân làm thất lạc đồ vật": {
+        "possible": "Người bệnh có thể đặt đồ vật ở vị trí khác thường rồi không nhớ lại được quá trình cất giữ.",
+        "avoid": "Không vội buộc tội người bệnh làm mất đồ hoặc cố tình giấu đồ.",
+        "try": "Cùng tìm kiếm, kiểm tra những vị trí quen thuộc và bố trí nơi cất đồ cố định.",
+        "example": "Có thể nói: 'Mình cùng tìm chiếc kính nhé. Mẹ nhớ lần cuối mình dùng ở đâu không?'"
+    },
+
+    "Người thân trở nên bối rối vào buổi tối": {
+        "possible": "Một số người mắc sa sút trí tuệ có thể trở nên bồn chồn, lú lẫn hoặc kích động hơn vào cuối ngày.",
+        "avoid": "Tránh tạo môi trường quá ồn ào, ánh sáng quá tối hoặc thay đổi lịch sinh hoạt đột ngột.",
+        "try": "Duy trì thói quen buổi tối, giảm tiếng ồn, đảm bảo ánh sáng phù hợp và kiểm tra những nhu cầu cơ bản.",
+        "example": "Có thể mở đèn nhẹ, bật bản nhạc quen thuộc và cùng người bệnh thực hiện một hoạt động thư giãn."
+    },
+
+    "Người thân không muốn ăn": {
+        "possible": "Có thể liên quan đến thay đổi khẩu vị, khó khăn khi sử dụng dụng cụ ăn uống, mệt mỏi hoặc vấn đề sức khỏe khác.",
+        "avoid": "Không ép ăn, quát mắng hoặc tạo áp lực trong bữa ăn.",
+        "try": "Chia nhỏ khẩu phần, giảm yếu tố gây xao nhãng và quan sát khả năng nhai nuốt.",
+        "example": "Có thể thử món ăn quen thuộc, dễ dùng và tạo không khí thoải mái. Nếu tình trạng kéo dài, hãy trao đổi với nhân viên y tế."
+    },
+
+    "Người thân từ chối tắm": {
+        "possible": "Người bệnh có thể cảm thấy lạnh, sợ ngã, ngại bị hỗ trợ hoặc không hiểu rõ hoạt động đang diễn ra.",
+        "avoid": "Không cưỡng ép, làm người bệnh xấu hổ hoặc vội vàng thực hiện.",
+        "try": "Giải thích từng bước, giữ sự riêng tư, điều chỉnh nhiệt độ và lựa chọn thời điểm phù hợp.",
+        "example": "Có thể nói: 'Mình chuẩn bị nước ấm nhé. Mẹ muốn tự làm phần nào trước?'"
+    }
+}
+
+
+# =========================================================
+# 7. BỘ THẺ TRẢI NGHIỆM
+# =========================================================
+
+CARDS = {
+    "Nhận thức": [
+        {
+            "title": "Một câu hỏi lặp lại",
+            "content": "Bà hỏi bạn ba lần về thời gian mẹ sẽ về nhà.",
+            "task": "Bạn sẽ phản ứng thế nào để bà cảm thấy an tâm?"
+        },
+        {
+            "title": "Ký ức quen thuộc",
+            "content": "Ông nhìn một bức ảnh cũ nhưng không nhớ tên người trong ảnh.",
+            "task": "Bạn có thể bắt đầu cuộc trò chuyện ra sao?"
+        }
+    ],
+
+    "Đồng cảm": [
+        {
+            "title": "Một ngày khó khăn",
+            "content": "Người thân tỏ ra bực bội khi không thể làm một việc quen thuộc.",
+            "task": "Hãy nghĩ về cảm xúc có thể đang tồn tại phía sau hành vi."
+        },
+        {
+            "title": "Được lắng nghe",
+            "content": "Người thân kể lại một câu chuyện đã kể nhiều lần.",
+            "task": "Bạn có thể lắng nghe như thế nào để họ cảm thấy được tôn trọng?"
+        }
+    ],
+
+    "Tình huống": [
+        {
+            "title": "Chiếc chìa khóa",
+            "content": "Người thân không tìm thấy chiếc chìa khóa và bắt đầu lo lắng.",
+            "task": "Hãy đề xuất một cách hỗ trợ bình tĩnh."
+        },
+        {
+            "title": "Bữa cơm gia đình",
+            "content": "Người thân không muốn tham gia bữa ăn cùng mọi người.",
+            "task": "Bạn sẽ điều chỉnh môi trường và cách giao tiếp ra sao?"
+        }
+    ],
+
+    "Hành động": [
+        {
+            "title": "Một việc nhỏ",
+            "content": "Bạn có 15 phút để tạo ra một khoảnh khắc vui vẻ với người thân.",
+            "task": "Hãy đề xuất một hoạt động đơn giản, quen thuộc và an toàn."
+        },
+        {
+            "title": "Góc ký ức",
+            "content": "Gia đình có nhiều bức ảnh cũ chưa được sắp xếp.",
+            "task": "Bạn sẽ sử dụng những bức ảnh đó để tạo sự kết nối như thế nào?"
+        }
+    ],
+
+    "Kiến thức": [
+        {
+            "title": "Alzheimer và tuổi tác",
+            "content": "Một người cao tuổi thường quên một số việc.",
+            "task": "Vì sao không nên mặc định mọi biểu hiện quên đều là Alzheimer?"
+        },
+        {
+            "title": "Vai trò của bác sĩ",
+            "content": "Một gia đình nhận thấy người thân có thay đổi trí nhớ kéo dài.",
+            "task": "Vì sao cần được đánh giá bởi nhân viên y tế?"
+        }
+    ]
+}
+
+
+# =========================================================
+# 8. NGÂN HÀNG CÂU HỎI MINI-GAME
+# =========================================================
+
+QUIZ = [
+    {
+        "question": "Alzheimer có phải là một phần tất yếu của quá trình lão hóa?",
+        "options": [
+            "Có, ai già đi cũng sẽ mắc",
+            "Không, đây là bệnh lý riêng biệt",
+            "Chỉ người trên 80 tuổi mới mắc",
+            "Không thể phân biệt"
+        ],
+        "answer": 1,
+        "explain": "Alzheimer không phải hệ quả tất yếu của tuổi già. Đây là một bệnh lý thần kinh tiến triển."
+    },
+    {
+        "question": "Khi người thân liên tục hỏi lại một câu, cách phản ứng phù hợp là gì?",
+        "options": [
+            "Quát để họ nhớ",
+            "Bỏ mặc hoàn toàn",
+            "Trả lời nhẹ nhàng và hỗ trợ bằng gợi nhắc",
+            "Tranh luận để chứng minh họ sai"
+        ],
+        "answer": 2,
+        "explain": "Sự kiên nhẫn và hỗ trợ bằng các gợi nhắc có thể giúp người bệnh cảm thấy an tâm."
+    },
+    {
+        "question": "Sa sút trí tuệ là gì?",
+        "options": [
+            "Một tên gọi khác của tuổi già",
+            "Một hội chứng suy giảm nhận thức ảnh hưởng sinh hoạt",
+            "Một loại cảm xúc",
+            "Một bệnh chỉ xuất hiện ở trẻ em"
+        ],
+        "answer": 1,
+        "explain": "Sa sút trí tuệ là thuật ngữ chung mô tả hội chứng suy giảm nhận thức ảnh hưởng đến hoạt động thường ngày."
+    },
+    {
+        "question": "Ai có vai trò đánh giá và chẩn đoán Alzheimer?",
+        "options": [
+            "Bạn bè",
+            "Bất kỳ người thân nào",
+            "Nhân viên y tế có chuyên môn",
+            "Một bài kiểm tra trực tuyến"
+        ],
+        "answer": 2,
+        "explain": "Chẩn đoán cần được thực hiện bởi nhân viên y tế có chuyên môn, dựa trên đánh giá phù hợp."
+    },
+    {
+        "question": "Điều gì nên được ưu tiên khi giao tiếp với người mắc Alzheimer?",
+        "options": [
+            "Nói thật nhanh",
+            "Tranh luận khi họ nhầm lẫn",
+            "Kiên nhẫn, tôn trọng và lắng nghe",
+            "Không cho họ tự lựa chọn"
+        ],
+        "answer": 2,
+        "explain": "Giao tiếp tôn trọng, bình tĩnh và tạo điều kiện cho người bệnh lựa chọn là rất quan trọng."
+    }
+]
+
+
+# =========================================================
+# 9. SIDEBAR - ĐIỀU HƯỚNG
+# =========================================================
+
+PAGES = [
+    "Trang chủ",
+    "Khám phá Alzheimer",
+    "Thư viện tri thức",
+    "Não bộ và trí nhớ",
+    "Cẩm nang đồng hành",
+    "Trạm trải nghiệm",
+    "Hành trình thấu cảm",
+    "Không gian sẻ chia",
+    "Nguồn tham khảo"
+]
+
+with st.sidebar:
+    render_logo(145)
+
+    st.markdown("""
+    <div style="
+        font-size:10px;
+        letter-spacing:2px;
+        color:#B9D3C0;
+        margin-bottom:22px;
+    ">
+        THẤU HIỂU ĐỂ KẾT NỐI
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("### KHÁM PHÁ CHẠM HUB")
+
+    page = st.radio(
+        "Điều hướng",
+        PAGES,
+        label_visibility="collapsed",
+        key="main_navigation"
+    )
+
+    st.markdown("---")
+
+    st.markdown("**HÀNH TRÌNH CỦA BẠN**")
+    st.metric(
+        "Hoạt động đã hoàn thành",
+        f"{len(st.session_state.completed)}/7"
+    )
+
+    st.progress(min(len(st.session_state.completed) / 7, 1.0))
+
+    st.markdown("---")
+    st.caption("CHẠM HUB • EDUCATION & EMPATHY")
+
+
+# =========================================================
+# 10. TRANG CHỦ
+# =========================================================
+
+if page == "Trang chủ":
+
+    st.markdown("""
+    <div class="hero">
+        <div class="eyebrow">CHẠM HUB • KNOWLEDGE & EMPATHY</div>
+        <h1>Hiểu để gần nhau hơn.</h1>
+        <p>
+        Một không gian tri thức giúp bạn khám phá Alzheimer,
+        hiểu về trí nhớ và học cách đồng hành với người bệnh
+        bằng sự kiên nhẫn, tôn trọng và yêu thương.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    a, b = st.columns([1, 3])
+
+    with a:
+        render_logo(155)
+
+    with b:
+        st.markdown("""
+        <div style="padding:10px 0">
+            <div class="small-label">WELCOME TO</div>
+            <h1 style="margin-bottom:0">CHẠM HUB</h1>
+            <p style="color:#668575">
+            Nền tảng tri thức và trải nghiệm giáo dục
+            về Alzheimer.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="quote">
+        “Không ai phải đi một mình.”
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.subheader("Bắt đầu hành trình khám phá")
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        panel(
+            "Khám phá tri thức",
+            "Tìm hiểu Alzheimer, dấu hiệu nhận biết và những kiến thức khoa học nền tảng.",
+            "🧠"
+        )
+
+    with c2:
+        panel(
+            "Học cách đồng hành",
+            "Tiếp cận những tình huống thường ngày và cách hỗ trợ người thân.",
+            "🤝"
+        )
+
+    with c3:
+        panel(
+            "Trải nghiệm tương tác",
+            "Thử thách kiến thức, rút thẻ tình huống và xây dựng sự thấu cảm.",
+            "🎯"
+        )
+
+    st.markdown("---")
+    st.subheader("Các con số trong hành trình")
+
+    x1, x2, x3, x4 = st.columns(4)
+
+    x1.metric("Chuyên mục", "9")
+    x2.metric("Chủ đề tri thức", len(KNOWLEDGE))
+    x3.metric("Tình huống", len(SCENARIOS))
+    x4.metric("Câu hỏi thử thách", len(QUIZ))
+
+    st.markdown("---")
+    st.subheader("Một hành trình bắt đầu từ sự thấu hiểu")
+
+    st.write("""
+    CHẠM không chỉ hướng đến việc cung cấp kiến thức về Alzheimer,
+    mà còn mong muốn thay đổi cách chúng ta nhìn nhận và tương tác
+    với người mắc bệnh.
+
+    Từ hiểu biết khoa học đến những hành động nhỏ trong đời sống,
+    mỗi sự kiên nhẫn và quan tâm đều có thể góp phần tạo nên
+    một môi trường sống nhân văn hơn.
+    """)
+
+    if st.button("Bắt đầu khám phá →", type="primary"):
+        st.session_state.main_navigation = "Khám phá Alzheimer"
+        st.rerun()
+
+
+# =========================================================
+# 11. KHÁM PHÁ ALZHEIMER
+# =========================================================
+
+elif page == "Khám phá Alzheimer":
+
+    section_title(
+        "DISCOVER",
+        "Khám phá Alzheimer",
+        "Bắt đầu từ những kiến thức cơ bản để hiểu đúng về bệnh."
+    )
+
+    st.markdown("""
+    <div class="green-panel">
+        <b>Góc nhìn khoa học</b><br>
+        Alzheimer là bệnh lý thần kinh tiến triển, có thể ảnh hưởng
+        đến trí nhớ, tư duy, ngôn ngữ và khả năng sinh hoạt.
+    </div>
+    """, unsafe_allow_html=True)
+
+    for i, (name, data) in enumerate(KNOWLEDGE.items()):
+        with st.expander(f"{i+1}. {name}", expanded=(i == 0)):
+            st.caption(data["tag"])
+            st.write(data["intro"])
+
+            for heading, content in data["sections"]:
+                st.markdown(f"**{heading}**")
+                st.write(content)
+
+    st.info(
+        "Nội dung trên nhằm mục đích giáo dục và nâng cao nhận thức, "
+        "không thay thế việc thăm khám hoặc tư vấn y tế."
+    )
+
+    if st.button("Hoàn thành chuyên mục khám phá"):
+        mark_complete("discover")
+        st.success("Bạn đã hoàn thành chuyên mục này!")
+
+
+# =========================================================
+# 12. THƯ VIỆN TRI THỨC
+# =========================================================
+
+elif page == "Thư viện tri thức":
+
+    section_title(
+        "KNOWLEDGE LIBRARY",
+        "Thư viện tri thức",
+        "Tìm kiếm, lựa chọn và đọc những nội dung bạn quan tâm."
+    )
+
+    keyword = st.text_input(
+        "🔎 Tìm kiếm chủ đề",
+        placeholder="Ví dụ: trí nhớ, dấu hiệu, giao tiếp..."
+    )
+
+    category = st.selectbox(
+        "Chọn chủ đề",
+        ["Tất cả"] + list(KNOWLEDGE.keys())
+    )
+
+    for name, data in KNOWLEDGE.items():
+
+        if category != "Tất cả" and category != name:
+            continue
+
+        searchable = (
+            name + " " + data["intro"] + " " +
+            " ".join(
+                heading + " " + content
+                for heading, content in data["sections"]
+            )
+        ).lower()
+
+        if keyword and keyword.lower() not in searchable:
+            continue
+
+        with st.expander(f"📚 {name}"):
+            st.caption(data["tag"])
+            st.write(data["intro"])
+
+            for heading, content in data["sections"]:
+                st.markdown(f"**{heading}**")
+                st.write(content)
+
+            if st.button(
+                "Đánh dấu đã đọc",
+                key="read_" + name
+            ):
+                mark_complete("read_" + name)
+                st.success("Đã ghi nhận!")
+
+    if keyword:
+        st.caption("Kết quả được lọc theo từ khóa bạn nhập.")
+
+
+# =========================================================
+# 13. NÃO BỘ VÀ TRÍ NHỚ
+# =========================================================
+
+elif page == "Não bộ và trí nhớ":
+
+    section_title(
+        "BRAIN & MEMORY",
+        "Não bộ và trí nhớ",
+        "Khám phá cách não bộ tiếp nhận, lưu trữ và truy xuất thông tin."
+    )
+
+    st.markdown("""
+    <div class="hero">
+        <div class="eyebrow">THE HUMAN BRAIN</div>
+        <h1>Mỗi ký ức là một kết nối.</h1>
+        <p>
+        Trí nhớ không nằm ở một điểm duy nhất.
+        Nó là kết quả hoạt động phối hợp của nhiều vùng não
+        và mạng lưới thần kinh.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.subheader("Ba quá trình cơ bản của trí nhớ")
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        panel(
+            "1. Tiếp nhận",
+            "Não bộ tiếp nhận thông tin thông qua các giác quan và sự chú ý.",
+            "👁️"
+        )
+
+    with c2:
+        panel(
+            "2. Lưu trữ",
+            "Thông tin được xử lý và duy trì thông qua hoạt động của các mạng lưới thần kinh.",
+            "🧩"
+        )
+
+    with c3:
+        panel(
+            "3. Truy xuất",
+            "Khi cần thiết, não bộ huy động những thông tin đã được lưu trữ.",
+            "💡"
+        )
+
+    st.markdown("---")
+    st.subheader("Một số vùng não liên quan đến trí nhớ")
+
+    brain_topics = {
+        "Hồi hải mã (Hippocampus)": (
+            "Có vai trò quan trọng trong việc hình thành ký ức mới "
+            "và định hướng không gian."
+        ),
+        "Vỏ não trước trán": (
+            "Tham gia vào trí nhớ làm việc, lập kế hoạch, "
+            "kiểm soát hành vi và ra quyết định."
+        ),
+        "Hạch hạnh nhân (Amygdala)": (
+            "Tham gia xử lý cảm xúc, đặc biệt là những trải nghiệm "
+            "có ý nghĩa cảm xúc."
+        ),
+        "Vỏ não": (
+            "Nhiều vùng vỏ não tham gia lưu giữ và xử lý "
+            "những loại thông tin khác nhau."
+        )
+    }
+
+    for title, content in brain_topics.items():
+        with st.expander(title):
+            st.write(content)
+
+    st.markdown("---")
+    st.subheader("Tại sao ký ức có thể bị ảnh hưởng?")
+
+    st.write("""
+    Trong Alzheimer, những thay đổi bệnh lý trong não có thể ảnh hưởng
+    đến tế bào thần kinh, sự truyền tín hiệu và hoạt động của các mạng
+    lưới liên quan đến trí nhớ.
+
+    Hồi hải mã là một trong những vùng có thể bị ảnh hưởng sớm,
+    góp phần giải thích vì sao khó ghi nhớ thông tin mới thường
+    là biểu hiện đáng chú ý.
+    """)
+
+    st.caption(
+        "Sơ đồ nội dung mang tính khái quát, không phải hình ảnh giải phẫu "
+        "hay mô phỏng chẩn đoán."
+    )
+
+    if st.button("Hoàn thành chuyên mục não bộ"):
+        mark_complete("brain")
+        st.success("Bạn đã hoàn thành chuyên mục!")
+
+
+# =========================================================
+# 14. CẨM NANG ĐỒNG HÀNH
+# =========================================================
+
+elif page == "Cẩm nang đồng hành":
+
+    section_title(
+        "CARE GUIDE",
+        "Cẩm nang đồng hành",
+        "Những gợi ý giao tiếp và hỗ trợ trong các tình huống đời thường."
+    )
+
+    selected = st.selectbox(
+        "Chọn tình huống bạn muốn tìm hiểu",
+        list(SCENARIOS.keys())
+    )
+
+    scenario = SCENARIOS[selected]
+
     st.markdown(f"""
     <div class="hero">
-      <div class="eyebrow">{kicker}</div>
-      <h1>{title}</h1>
-      <p>{subtitle}</p>
-    </div>""", unsafe_allow_html=True)
+        <div class="eyebrow">EVERYDAY SITUATION</div>
+        <h1>{safe(selected)}</h1>
+        <p>
+        Hiểu điều gì có thể đang diễn ra trước khi lựa chọn
+        cách phản ứng.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
-def panel(title, body):
-    st.markdown(f'<div class="panel"><h3>{title}</h3>{body}</div>', unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
 
-# --------------------------- HOME ---------------------------
-if page == "🏠 Trang chủ":
-    hero("MỘT HÀNH TRÌNH THẤU HIỂU", "CHẠM — Không ai phải đi một mình",
-         "Một không gian giáo dục tương tác giúp chúng ta hiểu hơn về Alzheimer, học cách đồng hành và kết nối cộng đồng.")
-    st.markdown('<div class="quote">“Có thể ký ức đổi thay, nhưng mỗi người vẫn luôn cần được lắng nghe, tôn trọng và yêu thương.”</div>', unsafe_allow_html=True)
-    a,b,c = st.columns(3)
-    a.metric("Trụ cột nội dung","04","Nghiên cứu • Công nghệ • Chăm sóc • Cộng đồng")
-    b.metric("Bộ trò chơi vật lý","132 thẻ","8 nhóm thẻ theo cấu trúc dự án")
-    c.metric("Bản đồ hành trình","64 ô","4 vùng trải nghiệm")
-    st.subheader("Khám phá CHẠM Hub")
-    cols = st.columns(3)
-    items = [
-        ("📊","Hiểu đúng","Tìm hiểu kiến thức nền tảng và các dấu hiệu cần lưu ý."),
-        ("🧭","Ứng xử nhân văn","Thực hành cách giao tiếp và hỗ trợ trong tình huống đời sống."),
-        ("🎲","Học qua trải nghiệm","Rút thẻ, giải quyết tình huống và nhận phản hồi.")
-    ]
-    for col,(icon,title,desc) in zip(cols,items):
-        with col:
-            st.markdown(f'<div class="panel"><div style="font-size:2rem">{icon}</div><h3>{title}</h3><p class="soft">{desc}</p></div>',unsafe_allow_html=True)
-    st.info("Hãy chọn một không gian ở thanh bên để bắt đầu hành trình.")
-    st.caption("CHẠM Hub là nền tảng thông tin đồng hành cùng trò chơi giáo dục CHẠM.")
+    with c1:
+        st.markdown(
+            f"""
+            <div class="panel">
+                <h3>🧠 Điều có thể đang xảy ra</h3>
+                <p>{safe(scenario["possible"])}</p>
+            </div>
+            <div class="gold-panel">
+                <h3>⚠️ Nên tránh</h3>
+                <p>{safe(scenario["avoid"])}</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-# --------------------------- MODULE 1 ---------------------------
-elif page == "📊 Hiểu về Alzheimer":
-    hero("MODULE 01 · NHẬN THỨC", "Hiểu đúng để không vô tình làm đau",
-         "Những thông tin nền tảng giúp nhận diện sa sút trí tuệ và hiểu vì sao sự đồng hành của cộng đồng quan trọng.")
-    st.subheader("Một vấn đề sức khỏe cộng đồng")
-    x1,x2,x3 = st.columns(3)
-    x1.metric("Người sống chung với sa sút trí tuệ","55+ triệu","Ước tính toàn cầu được WHO công bố")
-    x2.metric("Ca mắc mới mỗi năm","Gần 10 triệu","Ước tính toàn cầu của WHO")
-    x3.metric("Tỷ trọng Alzheimer","60–70%","Trong các trường hợp sa sút trí tuệ — WHO")
-    st.caption("Nguồn: WHO, Dementia. Các số liệu là ước tính toàn cầu, không phải số liệu riêng của Việt Nam.")
-    st.markdown("#### Sa sút trí tuệ toàn cầu: quy mô dự báo")
-    df = pd.DataFrame({"Mốc":["2020","2030","2050"],"Số người (triệu)":[55,78,139],
-                       "Loại":["Ước tính nền","Dự báo","Dự báo"]})
-    fig = px.bar(df,x="Mốc",y="Số người (triệu)",text="Số người (triệu)",
-                 color="Loại",color_discrete_map={"Ước tính nền":"#18324A","Dự báo":"#55A88B"})
-    fig.update_traces(textposition="outside")
-    fig.update_layout(height=350,margin=dict(l=10,r=10,t=25,b=10),plot_bgcolor="white",paper_bgcolor="white")
-    st.plotly_chart(fig,use_container_width=True)
-    st.caption("Dãy số minh họa theo các ước tính thường được trích dẫn từ WHO; khi xuất bản chính thức, nhóm cần đối chiếu năm và phiên bản báo cáo gốc.")
-    st.divider()
-    l,r = st.columns(2)
-    with l:
-        panel("Alzheimer là gì?","<p>Alzheimer là một bệnh lý tiến triển của não, có thể ảnh hưởng đến trí nhớ, tư duy, ngôn ngữ và khả năng thực hiện các hoạt động thường ngày.</p><p class='soft'>Không phải mọi trường hợp hay quên đều là Alzheimer. Chẩn đoán cần được thực hiện bởi nhân viên y tế.</p>")
-    with r:
-        panel("Điều CHẠM muốn thay đổi","<p>Giảm hiểu lầm và định kiến; khuyến khích giao tiếp kiên nhẫn; giúp học sinh và cộng đồng nhận ra vai trò của sự tôn trọng, hỗ trợ và kết nối.</p>")
-    st.subheader("Bốn trụ cột của CHẠM")
-    pillars = st.columns(4)
-    for col,icon,name,desc in zip(pillars,["🔬","💡","🤲","🌱"],["Nghiên cứu","Công nghệ","Chăm sóc","Cộng đồng"],
-                                  ["Tìm hiểu và kiểm chứng","Giải pháp hỗ trợ phù hợp","Đồng hành trong đời sống","Kết nối và lan tỏa"]):
-        with col:
-            st.markdown(f'<div class="step"><div style="font-size:1.8rem">{icon}</div><b>{name}</b><p class="soft">{desc}</p></div>',unsafe_allow_html=True)
+    with c2:
+        st.markdown(
+            f"""
+            <div class="green-panel">
+                <h3>🤝 Có thể thử</h3>
+                <p>{safe(scenario["try"])}</p>
+            </div>
+            <div class="panel">
+                <h3>💬 Gợi ý giao tiếp</h3>
+                <p>{safe(scenario["example"])}</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-# --------------------------- MODULE 2 ---------------------------
-elif page == "🧭 Cẩm nang đồng hành":
-    hero("MODULE 02 · CẨM NANG", "Một tình huống — nhiều cách lựa chọn",
-         "Khám phá những gợi ý giao tiếp và hỗ trợ trong đời sống. Mỗi người có nhu cầu khác nhau; hãy linh hoạt và tôn trọng.")
-    selected = st.selectbox("Chọn tình huống muốn tìm hiểu:",[g["name"] for g in GUIDES])
-    g = next(item for item in GUIDES if item["name"] == selected)
-    st.markdown(f'<div class="panel"><span class="pill">{g["tag"]}</span><h2>{g["name"]}</h2><p>{g["problem"]}</p></div>',unsafe_allow_html=True)
-    left,right = st.columns(2)
-    with left:
-        st.markdown('<div class="panel" style="border-top:5px solid #D98273"><h3>Điều nên tránh</h3>'+g["avoid"]+'</div>',unsafe_allow_html=True)
-    with right:
-        st.markdown('<div class="panel" style="border-top:5px solid #55A88B"><h3>Có thể thử</h3>'+g["try"]+'</div>',unsafe_allow_html=True)
-    st.info(g["note"])
-    with st.expander("Vì sao cách tiếp cận này quan trọng?"):
-        st.write("Giao tiếp nên hướng đến cảm giác an toàn, sự tôn trọng và khả năng tham gia của người mắc bệnh. Không có một cách ứng xử duy nhất phù hợp với mọi người.")
-    st.subheader("Bạn đã nắm được điều gì?")
-    feedback = st.radio("Sau khi đọc tình huống, bạn thấy mình có thể áp dụng gợi ý này không?",
-                        ["Có thể áp dụng","Cần tìm hiểu thêm","Chưa phù hợp với tình huống mình biết"],horizontal=True,key=f"fb_{selected}")
-    if st.button("Lưu phản hồi của tôi"):
-        st.session_state.guide_feedback[selected] = feedback
-        st.success("Đã lưu phản hồi trong phiên trải nghiệm này.")
+    st.info(
+        "Mỗi người có nhu cầu và biểu hiện khác nhau. "
+        "Hãy điều chỉnh cách hỗ trợ theo hoàn cảnh thực tế."
+    )
 
-# --------------------------- MODULE 3 ---------------------------
-elif page == "🎲 Trạm trải nghiệm":
-    hero("MODULE 03 · HỌC QUA TRẢI NGHIỆM", "Chạm vào tình huống — chọn cách đồng hành",
-         "Trạm trải nghiệm số lấy cảm hứng từ các nhóm thẻ trong bộ trò chơi CHẠM.")
-    tab1,tab2 = st.tabs(["🎴 Rút thẻ tình huống","🧩 Thử thách lựa chọn"])
+    if st.button("Đã tìm hiểu tình huống này"):
+        mark_complete("care_" + selected)
+        st.success("Đã ghi nhận hành trình của bạn!")
+
+
+# =========================================================
+# 15. TRẠM TRẢI NGHIỆM
+# =========================================================
+
+elif page == "Trạm trải nghiệm":
+
+    section_title(
+        "INTERACTIVE EXPERIENCE",
+        "Trạm trải nghiệm",
+        "Học qua tình huống, thử thách và những lựa chọn nhỏ."
+    )
+
+    tab1, tab2 = st.tabs([
+        "🎴 Rút thẻ trải nghiệm",
+        "🎯 Mini-game kiến thức"
+    ])
+
+    # -----------------------------------------------------
+    # RÚT THẺ
+    # -----------------------------------------------------
+
     with tab1:
-        groups = ["Tất cả nhóm"] + sorted(set(c["group"] for c in CARD_DECK))
-        chosen_group = st.selectbox("Chọn nhóm thẻ",groups)
-        if st.button("✨ Rút một thẻ",type="primary"):
-            pool = CARD_DECK if chosen_group == "Tất cả nhóm" else [c for c in CARD_DECK if c["group"] == chosen_group]
-            st.session_state.drawn_card = random.choice(pool)
-        card = st.session_state.drawn_card
-        if card:
-            st.markdown(f'<div class="panel"><span class="pill">{card["group"]} · {card["code"]}</span><h2>{card["title"]}</h2><p>{card["scenario"]}</p><b>🎯 Nhiệm vụ</b><p>{card["task"]}</p></div>',unsafe_allow_html=True)
-            with st.expander("Xem gợi ý phản hồi"):
-                st.write(card["why"])
-        st.caption("Lưu ý: đây là bộ thẻ mẫu minh họa tương tác trên web, chưa phải toàn bộ 132 thẻ chính thức của bộ trò chơi.")
+
+        st.subheader("Bộ thẻ CHẠM")
+
+        st.write(
+            "Chọn một nhóm thẻ, sau đó rút một tình huống "
+            "để thử suy nghĩ và phản hồi."
+        )
+
+        group = st.selectbox(
+            "Nhóm thẻ",
+            list(CARDS.keys()),
+            key="card_group"
+        )
+
+        if st.button("RÚT MỘT THẺ", type="primary"):
+            card = random.choice(CARDS[group])
+            st.session_state.drawn_cards = [group, card]
+
+        if st.session_state.drawn_cards:
+            drawn_group, card = st.session_state.drawn_cards
+
+            st.markdown(f"""
+            <div class="hero">
+                <div class="eyebrow">CHẠM EXPERIENCE CARD • {safe(drawn_group)}</div>
+                <h1>{safe(card["title"])}</h1>
+                <p>{safe(card["content"])}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+            st.markdown(
+                f"""
+                <div class="green-panel">
+                    <h3>💭 THỬ THÁCH DÀNH CHO BẠN</h3>
+                    <p>{safe(card["task"])}</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            response = st.text_area(
+                "Suy nghĩ của bạn",
+                placeholder="Hãy viết cách bạn sẽ phản ứng...",
+                key="card_response"
+            )
+
+            if st.button("Lưu suy nghĩ", key="save_card"):
+                if response.strip():
+                    st.session_state.journal.append({
+                        "title": card["title"],
+                        "content": response.strip()
+                    })
+                    mark_complete("card")
+                    st.success("Đã lưu suy nghĩ vào nhật ký!")
+                else:
+                    st.warning("Bạn hãy nhập suy nghĩ trước.")
+
+    # -----------------------------------------------------
+    # MINI GAME
+    # -----------------------------------------------------
+
     with tab2:
-        st.markdown("#### Thử thách: chọn cách ứng xử")
-        quiz = st.selectbox("Chọn tình huống",CARD_DECK,key="quiz_card",format_func=lambda c:f'{c["code"]} — {c["title"]}')
-        st.write(quiz["scenario"])
-        answer = st.radio(quiz["task"],quiz["choices"],key=f'ans_{quiz["code"]}')
-        if st.button("Kiểm tra lựa chọn",type="primary"):
-            idx = quiz["choices"].index(answer)
-            if idx == quiz["answer"]:
-                st.success("Bạn đã chọn phương án phù hợp trong tình huống này.")
-                st.session_state.quiz_score += 1
-            else:
-                st.warning("Lựa chọn này chưa phải phương án phù hợp nhất. Hãy đọc phần giải thích để cân nhắc.")
-            st.info(quiz["why"])
-        st.metric("Lượt trả lời đúng được ghi nhận trong phiên",st.session_state.quiz_score)
-        if st.button("Đặt lại điểm trải nghiệm"):
-            st.session_state.quiz_score = 0
-            st.rerun()
 
-# --------------------------- MODULE 4 ---------------------------
-elif page == "💌 Không gian sẻ chia":
-    hero("MODULE 04 · KẾT NỐI CỘNG ĐỒNG", "Những điều nhỏ bé cũng có thể nâng đỡ",
-         "Một góc để viết lại suy nghĩ, ghi nhận điều đã học và gửi lời động viên.")
-    left,right = st.columns(2)
-    with left:
-        st.markdown("### 📖 Nhật ký cá nhân")
-        st.caption("Nội dung chỉ được lưu trong phiên trình duyệt/phiên ứng dụng hiện tại ở bản thử nghiệm này.")
-        title = st.text_input("Tiêu đề nhật ký",placeholder="Một ngày kiên nhẫn hơn...")
-        body = st.text_area("Điều bạn muốn ghi lại",height=130,placeholder="Hôm nay tôi đã hiểu thêm điều gì?")
-        if st.button("Lưu nhật ký"):
-            if title.strip() and body.strip():
-                st.session_state.journal.insert(0,{"title":title.strip(),"body":body.strip(),"time":datetime.now().strftime("%d/%m/%Y %H:%M")})
-                st.success("Đã lưu trong phiên hiện tại.")
-            else:
-                st.warning("Vui lòng nhập tiêu đề và nội dung.")
-        for item in st.session_state.journal:
-            st.markdown(f'<div class="panel"><b>{item["title"]}</b><p>{item["body"]}</p><span class="soft">{item["time"]}</span></div>',unsafe_allow_html=True)
-    with right:
-        st.markdown("### 🕊️ Bức tường lời nhắn")
-        st.caption("Bản minh họa: lời nhắn chỉ hiển thị trong phiên hiện tại, chưa được chia sẻ giữa các tài khoản.")
-        author = st.text_input("Tên hoặc bút danh",placeholder="Có thể để trống")
-        message = st.text_area("Lời nhắn",height=130,placeholder="Gửi một lời động viên...")
-        consent = st.checkbox("Tôi không đưa thông tin cá nhân nhạy cảm của mình hoặc người khác vào lời nhắn.")
-        if st.button("Gửi lời nhắn"):
-            if message.strip() and consent:
-                st.session_state.wall.insert(0,{"author":author.strip() or "Ẩn danh","message":message.strip(),"time":datetime.now().strftime("%d/%m/%Y %H:%M")})
-                st.success("Đã thêm lời nhắn vào bảng xem trước của phiên.")
-            else:
-                st.warning("Hãy nhập lời nhắn và xác nhận lưu ý quyền riêng tư.")
-        for item in st.session_state.wall:
-            st.markdown(f'<div class="panel"><b>🌿 {item["author"]}</b><p>{item["message"]}</p><span class="soft">{item["time"]}</span></div>',unsafe_allow_html=True)
-    st.warning("Trước khi mở chức năng cộng đồng công khai, cần bổ sung cơ sở dữ liệu dùng chung, kiểm duyệt nội dung, cơ chế báo cáo/xóa bài và chính sách quyền riêng tư. Không nên thu thập dữ liệu sức khỏe hoặc thông tin nhận diện người bệnh.")
+        st.subheader("Thử thách kiến thức")
 
-# --------------------------- SOURCES ---------------------------
-elif page == "📚 Nguồn tham khảo":
-    hero("MINH BẠCH THÔNG TIN", "Nội dung có nguồn — niềm tin có cơ sở",
-         "Các tài liệu tham khảo được nhóm sử dụng làm nền tảng xây dựng nội dung giáo dục cho CHẠM.")
-    for i,(name,url) in enumerate(SOURCES,1):
-        st.markdown(f'<div class="panel"><b>[{i}] {name}</b><br><a href="{url}" target="_blank">{url}</a></div>',unsafe_allow_html=True)
-    st.caption("Nhóm cần đọc, đối chiếu và ghi ngày truy cập cho từng tài liệu trước khi chốt danh mục trong hồ sơ.")
+        total = len(QUIZ)
 
-st.divider()
-st.markdown(
-    "<div style='text-align:center;color:#718078;padding:.5rem'>"
-    "<b>CHẠM</b> · Thấu hiểu để kết nối – Kết nối để sẻ chia<br>"
-    "<span style='font-size:.82rem'>Nội dung mang tính giáo dục, không thay thế chẩn đoán hoặc tư vấn y tế.</span></div>",
-    unsafe_allow_html=True
-)
+        if st.session_state.quiz_index >= total:
+            st.success("Bạn đã hoàn thành toàn bộ câu hỏi!")
+
+            st.metric(
+                "Điểm số",
+                f'{st.session_state.score}/{total}'
+            )
+
+            st.progress(
+                st.session_state.score / total
+                if total else 0
+            )
+
+            if st.button("Chơi lại"):
+                st.session_state.quiz_index = 0
+                st.session_state.quiz_feedback = None
+                st.session_state.quiz_results = {}
+                st.session_state.quiz_answer = None
+                st.session_state.score = 0
+                st.rerun()
+
+        else:
+            idx = st.session_state.quiz_index
+            q = QUIZ[idx]
+
+            st.progress(idx / total)
+
+            st.caption(f"CÂU HỎI {idx+1}/{total}")
+
+            st.markdown(f"""
+            <div class="panel">
+                <div class="small-label">KNOWLEDGE CHALLENGE</div>
+                <h3>{safe(q["question"])}</h3>
+            </div>
+            """, unsafe_allow_html=True)
+
+            choice = st.radio(
+                "Chọn câu trả lời",
+                q["options"],
+                key=f"quiz_choice_{idx}",
+                index=None
+            )
+
+            if st.button(
+                "XÁC NHẬN ĐÁP ÁN",
+                type="primary",
+                key=f"submit_quiz_{idx}"
+            ):
+                if choice is None:
+                    st.warning("Bạn hãy chọn một đáp án.")
+                else:
+                    answer_index = q["options"].index(choice)
+                    correct = answer_index == q["answer"]
+
+                    st.session_state.quiz_answer = answer_index
+                    st.session_state.quiz_feedback = {
+                        "correct": correct,
+                        "explain": q["explain"]
+                    }
+
+                    if idx not in st.session_state.quiz_results:
+                        st.session_state.quiz_results[idx] = correct
+                        if correct:
+                            st.session_state.score += 1
+
+            if st.session_state.quiz_feedback is not None:
+                feedback = st.session_state.quiz_feedback
+
+                if feedback["correct"]:
+                    st.success("Chính xác! Bạn đã chọn đáp án đúng.")
+                else:
+                    st.error(
+                        "Chưa chính xác. Đáp án đúng là: "
+                        + q["options"][q["answer"]]
+                    )
+
+                st.info(feedback["explain"])
+
+                if st.button(
+                    "CÂU TIẾP THEO →",
+                    type="primary",
+                    key=f"next_quiz_{idx}"
+                ):
+                    st.session_state.quiz_index += 1
+                    st.session_state.quiz_feedback = None
+                    st.session_state.quiz_answer = None
+                    st.rerun()
+
+            st.caption(
+                f"Điểm hiện tại: {st.session_state.score}"
+            )
+
+
+# =========================================================
+# 16. HÀNH TRÌNH THẤU CẢM
+# =========================================================
+
+elif page == "Hành trình thấu cảm":
+
+    section_title(
+        "EMPATHY JOURNEY",
+        "Hành trình thấu cảm",
+        "Mỗi kiến thức được tiếp nhận là một bước tiến đến sự thấu hiểu."
+    )
+
+    activities = [
+        ("discover", "Khám phá Alzheimer", "Tìm hiểu những kiến thức nền tảng."),
+        ("brain", "Não bộ và trí nhớ", "Hiểu cách não bộ hoạt động."),
+        ("card", "Rút thẻ trải nghiệm", "Thử đặt mình vào một tình huống."),
+        ("care_Đã tìm hiểu", "Thực hành đồng hành", "Tìm hiểu một tình huống chăm sóc."),
+        ("read_Alzheimer là gì?", "Đọc kiến thức", "Khám phá một bài viết."),
+        ("community", "Chia sẻ suy nghĩ", "Gửi một thông điệp tích cực."),
+        ("quiz", "Thử thách kiến thức", "Hoàn thành mini-game.")
+    ]
+
+    completed = len(st.session_state.completed)
+
+    st.markdown("""
+    <div class="hero">
+        <div class="eyebrow">YOUR JOURNEY</div>
+        <h1>Hành trình của sự thấu hiểu.</h1>
+        <p>
+        Không phải cuộc đua để đạt điểm số cao nhất,
+        mà là quá trình học cách hiểu và sẻ chia.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.metric("Hoạt động đã ghi nhận", f"{completed}/7")
+
+    st.progress(min(completed / 7, 1.0))
+
+    for key, title, description in activities:
+        done = key in st.session_state.completed
+
+        icon = "✅" if done else "○"
+
+        st.markdown(
+            f"""
+            <div class="panel">
+                <b>{icon} {safe(title)}</b><br>
+                <span style="color:#81978A">
+                    {safe(description)}
+                </span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    st.markdown("""
+    <div class="quote">
+        Thấu hiểu không bắt đầu từ những điều lớn lao,
+        mà từ cách chúng ta đối xử với nhau mỗi ngày.
+    </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("Ghi nhận hoàn thành hành trình"):
+        for key, _, _ in activities:
+            st.session_state.completed.add(key)
+
+        st.success("Bạn đã ghi nhận hành trình trải nghiệm!")
+
+
+# =========================================================
+# 17. KHÔNG GIAN SẺ CHIA
+# =========================================================
+
+elif page == "Không gian sẻ chia":
+
+    section_title(
+        "SHARING SPACE",
+        "Không gian sẻ chia",
+        "Một nơi để ghi lại suy nghĩ, thông điệp và những điều tích cực."
+    )
+
+    st.markdown("""
+    <div class="green-panel">
+        <b>Thông điệp của CHẠM</b><br>
+        Một lời hỏi thăm, một lần kiên nhẫn lắng nghe
+        hay một hành động quan tâm đều có thể tạo nên sự khác biệt.
+    </div>
+    """, unsafe_allow_html=True)
+
+    tab1, tab2 = st.tabs([
+        "✍️ Nhật ký cá nhân",
+        "💚 Góc chia sẻ"
+    ])
+
+    with tab1:
+
+        st.subheader("Nhật ký của tôi")
+
+        journal_title = st.text_input(
+            "Tiêu đề",
+            placeholder="Một điều tôi nhận ra hôm nay..."
+        )
+
+        journal_content = st.text_area(
+            "Nội dung",
+            placeholder="Hãy viết những suy nghĩ của bạn...",
+            height=150
+        )
+
+        if st.button("Lưu vào nhật ký", type="primary"):
+            if journal_title.strip() and journal_content.strip():
+                st.session_state.journal.append({
+                    "title": journal_title.strip(),
+                    "content": journal_content.strip()
+                })
+                mark_complete("journal")
+                st.success("Đã lưu nhật ký trong phiên truy cập này.")
+            else:
+                st.warning("Hãy nhập cả tiêu đề và nội dung.")
+
+        st.markdown("---")
+        st.subheader("Những ghi chép của bạn")
+
+        if not st.session_state.journal:
+            st.info("Bạn chưa có ghi chép nào.")
+        else:
+            for i, item in enumerate(
+                reversed(st.session_state.journal)
+            ):
+                with st.expander(item["title"]):
+                    st.write(item["content"])
+
+    with tab2:
+
+        st.subheader("Gửi một thông điệp")
+
+        nickname = st.text_input(
+            "Tên hiển thị",
+            value="Một người bạn CHẠM",
+            key="community_name"
+        )
+
+        message = st.text_area(
+            "Thông điệp của bạn",
+            placeholder="Hãy chia sẻ một điều tích cực...",
+            key="community_message"
+        )
+
+        if st.button("Đăng thông điệp"):
+            if nickname.strip() and message.strip():
+                st.session_state.community.insert(
+                    0,
+                    {
+                        "name": nickname.strip(),
+                        "message": message.strip()
+                    }
+                )
+                mark_complete("community")
+                st.success("Thông điệp đã được đăng trong phiên này.")
+                st.rerun()
+            else:
+                st.warning("Vui lòng nhập tên hiển thị và nội dung.")
+
+        st.markdown("---")
+        st.subheader("Những thông điệp từ cộng đồng")
+
+        if not st.session_state.community:
+            st.info(
+                "Chưa có thông điệp nào trong phiên truy cập này. "
+                "Hãy là người đầu tiên chia sẻ!"
+            )
+
+        for i, post in enumerate(st.session_state.community):
+            st.markdown(
+                f"""
+                <div class="panel">
+                    <div style="color:#39785F;font-weight:800">
+                        💚 {safe(post["name"])}
+                    </div>
+                    <p>{safe(post["message"])}</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        st.warning(
+            "Lưu ý: Nội dung nhật ký và góc chia sẻ hiện được lưu "
+            "trong session_state của phiên truy cập. Chưa có cơ sở dữ liệu "
+            "dùng chung nên chưa thể chia sẻ giữa các người dùng khác nhau."
+        )
+
+
+# =========================================================
+# 18. NGUỒN THAM KHẢO
+# =========================================================
+
+elif page == "Nguồn tham khảo":
+
+    section_title(
+        "REFERENCES",
+        "Nguồn tham khảo",
+        "Một số tổ chức và tài liệu uy tín để tìm hiểu sâu hơn."
+    )
+
+    references = [
+        (
+            "World Health Organization (WHO)",
+            "Thông tin về sa sút trí tuệ, sức khỏe cộng đồng và các khuyến nghị.",
+            "https://www.who.int/news-room/fact-sheets/detail/dementia"
+        ),
+        (
+            "National Institute on Aging (NIA)",
+            "Kiến thức về Alzheimer, triệu chứng, chẩn đoán và chăm sóc.",
+            "https://www.nia.nih.gov/health/alzheimers-and-dementia"
+        ),
+        (
+            "Alzheimer's Association",
+            "Thông tin giáo dục, hướng dẫn chăm sóc và hỗ trợ gia đình.",
+            "https://www.alz.org/"
+        ),
+        (
+            "NHS",
+            "Thông tin y tế và hướng dẫn về Alzheimer.",
+            "https://www.nhs.uk/conditions/alzheimers-disease/"
+        )
+    ]
+
+    for name, description, url in references:
+        st.markdown(
+            f"""
+            <div class="panel">
+                <h3>📖 {safe(name)}</h3>
+                <p>{safe(description)}</p>
+                <a href="{url}" target="_blank">
+                    Truy cập tài liệu →
+                </a>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    st.markdown("---")
+    st.subheader("Lưu ý về nội dung")
+
+    st.write("""
+    CHẠM Hub là nền tảng giáo dục và nâng cao nhận thức.
+    Nội dung không nhằm thay thế chẩn đoán, điều trị hoặc tư vấn
+    chuyên môn từ bác sĩ.
+
+    Các ví dụ tình huống trong nền tảng mang tính minh họa.
+    Người chăm sóc cần cân nhắc hoàn cảnh, nhu cầu và sự an toàn
+    của từng người bệnh.
+    """)
+
+
+# =========================================================
+# 19. CHÂN TRANG
+# =========================================================
+
+render_footer()
