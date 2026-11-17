@@ -2,6 +2,9 @@ from pathlib import Path
 import random
 import html
 import time
+import io
+import base64
+from gtts import gTTS
 import streamlit as st
 
 # =========================================================
@@ -234,7 +237,7 @@ a {
 footer { visibility: hidden; }
 #MainMenu { visibility: hidden; }
 
-/* Màn hình chào mừng hiệu ứng gõ phím chậm rãi & tinh tế */
+/* Màn hình chào mừng hiệu ứng gõ phím & giọng đọc */
 @keyframes blinkCursor {
     0%, 49% { border-color: #F3C66F; }
     50%, 100% { border-color: transparent; }
@@ -271,9 +274,8 @@ footer { visibility: hidden; }
     font-size: clamp(14px, 1.8vw, 18px);
     font-weight: 400;
     margin-top: 16px;
-    max-width: 700px;
-    line-height: 1.6;
-    opacity: 0.95;
+    max-width: 720px;
+    line-height: 1.65;
 }
 
 .welcome-sub {
@@ -287,51 +289,66 @@ footer { visibility: hidden; }
 """, unsafe_allow_html=True)
 
 # =========================================================
-# 4. MÀN HÌNH CHÀO MỪNG HIỆU ỨNG GÕ PHÍM CHẬM RÃI & CÓ ÂM THANH
+# 4. MÀN HÌNH CHÀO MỪNG CÓ GIỌNG ĐỌC TIẾNG VIỆT & GÕ CHỮ
 # =========================================================
+
+@st.cache_data(show_spinner=False)
+def generate_welcome_audio(text):
+    """Tạo file âm thanh giọng đọc tiếng Việt từ văn bản và mã hóa Base64"""
+    try:
+        tts = gTTS(text=text, lang='vi', slow=False)
+        fp = io.BytesIO()
+        tts.write_to_fp(fp)
+        fp.seek(0)
+        return base64.b64encode(fp.read()).decode()
+    except Exception:
+        return None
 
 if not st.session_state.welcomed:
     splash = st.empty()
     title_text = "CHẠM — Thấu hiểu để kết nối"
     desc_text = "Nền tảng tri thức và trải nghiệm giáo dục số đồng hành cùng bộ trò chơi bàn, giúp bạn thấu hiểu về Alzheimer, sẻ chia gánh nặng chăm sóc và lan tỏa sự nhân văn."
+    full_speech = "Chào mừng bạn đến với Chạm Hấp. Thấu hiểu để kết nối, kết nối để sẻ chia. Không ai phải đi một mình."
     
-    typed_title = ""
-    
-    # Phát âm thanh chào mừng tự động qua thẻ HTML audio ẩn
-    audio_html = """
-    <audio autoplay style="display:none;">
-        <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c368686d.mp3?filename=positive-notification-95150.mp3" type="audio/mpeg">
-    </audio>
-    """
-    st.markdown(audio_html, unsafe_allow_html=True)
+    audio_b64 = generate_welcome_audio(full_speech)
+    audio_tag = ""
+    if audio_b64:
+        # Phát giọng đọc tự động (và hiển thị thanh điều khiển nhỏ phòng trường hợp trình duyệt chặn autoplay)
+        audio_tag = f"""
+        <audio autoplay controls style="margin-top: 22px; height: 36px; border-radius: 20px; opacity: 0.85;">
+            <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
+        </audio>
+        """
 
-    # Hiệu ứng gõ chữ từ từ từng ký tự cho tiêu đề
+    typed_title = ""
     for char in title_text:
         typed_title += char
         splash.markdown(f"""
         <div class="welcome-overlay">
             <div style="font-size: 64px; margin-bottom: 14px;">🤝</div>
             <div class="typewriter-text">{html.escape(typed_title)}</div>
-            <div class="welcome-desc" style="opacity:0;"></div>
-            <div class="welcome-sub" style="opacity:0;"></div>
+            <div class="welcome-desc" style="opacity:0;">{html.escape(desc_text)}</div>
+            <div class="welcome-sub" style="opacity:0;">KẾT NỐI ĐỂ SẺ CHIA • KHÔNG AI PHẢI ĐI MỘT MÌNH</div>
         </div>
         """, unsafe_allow_html=True)
-        time.sleep(0.08)  # Tốc độ gõ chậm rãi, rõ ràng từng nhịp
+        time.sleep(0.08)
 
-    # Sau khi gõ xong tiêu đề, hiện tiếp đoạn mô tả ngắn mượt mà
-    time.sleep(0.3)
+    # Hiển thị đầy đủ nội dung giới thiệu kèm giọng đọc
     splash.markdown(f"""
     <div class="welcome-overlay">
         <div style="font-size: 64px; margin-bottom: 14px;">🤝</div>
         <div class="typewriter-text">{html.escape(title_text)}</div>
         <div class="welcome-desc">{html.escape(desc_text)}</div>
         <div class="welcome-sub">KẾT NỐI ĐỂ SẺ CHIA • KHÔNG AI PHẢI ĐI MỘT MÌNH</div>
+        {audio_tag}
     </div>
     """, unsafe_allow_html=True)
     
-    time.sleep(2.5) # Dừng lại đôi chút để người dùng kịp đọc trọn vẹn giới thiệu
+    # Đợi khoảng 6.5 giây để giọng đọc hoàn tất câu chào trước khi vào trang chính
+    time.sleep(6.5)
     splash.empty()
     st.session_state.welcomed = True
+
 
 # =========================================================
 # 5. HÀM HỖ TRỢ
