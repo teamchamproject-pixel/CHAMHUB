@@ -570,6 +570,7 @@ def welcome_screen():
         .replace("\n", " ")
     )
 
+    # Đã sửa lỗi escape ngoặc nhọn cú pháp JavaScript để tránh lỗi màn hình trắng
     components.html(f"""
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:18px 0 6px">
       <button id="speak"
@@ -592,44 +593,47 @@ def welcome_screen():
       const message = '{safe_text}';
       const status = document.getElementById('voice-status');
 
-      document.getElementById('speak').onclick = () => {{
+      document.getElementById('speak').onclick = function() {{
         if (!('speechSynthesis' in window)) {{
-          status.textContent='Trình duyệt này chưa hỗ trợ đọc văn bản.';
+          status.textContent = 'Trình duyệt này chưa hỗ trợ đọc văn bản.';
           return;
         }}
 
         window.speechSynthesis.cancel();
 
         const utter = new SpeechSynthesisUtterance(message);
-        utter.lang='vi-VN';
-        utter.rate=0.9;
-        utter.pitch=1;
-        utter.volume=1;
+        utter.lang = 'vi-VN';
+        utter.rate = 0.9;
+        utter.pitch = 1;
+        utter.volume = 1;
 
-        const voices=window.speechSynthesis.getVoices();
-        const vi=voices.find(v =>
-          v.lang && v.lang.toLowerCase().startsWith('vi')
-        );
+        const voices = window.speechSynthesis.getVoices();
+        const vi = voices.find(function(v) {{
+          return v.lang && v.lang.toLowerCase().startsWith('vi');
+        }});
 
-        if (vi) utter.voice=vi;
+        if (vi) utter.voice = vi;
 
-        utter.onstart=() =>
-          status.textContent='Đang phát lời giới thiệu…';
+        utter.onstart = function() {{
+          status.textContent = 'Đang phát lời giới thiệu…';
+        }};
 
-        utter.onend=() =>
-          status.textContent='Đã phát xong lời giới thiệu.';
+        utter.onend = function() {{
+          status.textContent = 'Đã phát xong lời giới thiệu.';
+        }};
 
-        utter.onerror=() =>
-          status.textContent='Không thể phát giọng đọc trên thiết bị này.';
+        utter.onerror = function() {{
+          status.textContent = 'Không thể phát giọng đọc trên thiết bị này.';
+        }};
 
         window.speechSynthesis.speak(utter);
       }};
 
-      document.getElementById('stop').onclick = () => {{
+      document.getElementById('stop').onclick = function() {{
         if ('speechSynthesis' in window) {{
           window.speechSynthesis.cancel();
         }}
-        status.textContent='Đã dừng giọng đọc.';
+        status.textContent = 'Đã dừng giọng đọc.';
       }};
     </script>
     """, height=105)
@@ -806,7 +810,6 @@ elif page == "Khám phá Alzheimer":
         unsafe_allow_html=True
     )
 
-    # Chia các Tab nâng cấp cho Module 1
     mod1_tabs = st.tabs([
         "🧬 Cơ chế sinh học thần kinh",
         "📊 Các giai đoạn tiến triển",
@@ -845,7 +848,7 @@ elif page == "Khám phá Alzheimer":
 
         stage_cols = st.columns(3)
         stages_info = [
-            ("Giai đoạn 1: Sớm (Nhẹ)", "🌱", "Bắt đầu quên các cuộc trò chuyện gần đây, hay để lẫn lộn đồ đạc, khó tập trung hoặc lập kế hoạch. Người bệnh vẫn có thể tự chăm sóc bản thân nhưng bắt đầu nhận thấy sự khác biệt."),
+            ("Giai đoạn 1: Sớm (Nhẹ)", "🌱", "Bắt đầu quên các cuộc trò chuyện gần đây, hay đi lạc, khó tập trung hoặc lập kế hoạch. Người bệnh vẫn có thể tự chăm sóc bản thân nhưng bắt đầu nhận thấy sự khác biệt."),
             ("Giai đoạn 2: Trung bình", "⚡", "Vùng não tổn thương lan rộng. Người bệnh gặp khó khăn khi mặc quần áo, nhầm lẫn thứ ngày/tháng, hay đi lạc, có thể có các thay đổi về cảm xúc hoặc hoang tưởng nhẹ."),
             ("Giai đoạn 3: Tiến triển (Nặng)", "🛡️", "Mất khả năng giao tiếp mạch lạc, không nhận diện được người thân quen, phụ thuộc hoàn toàn vào người chăm sóc trong mọi hoạt động ăn uống, vệ sinh hằng ngày.")
         ]
