@@ -241,7 +241,13 @@ DEFAULTS = {
     "care_answers": {},
     "drawn_cards": [],
     "current_card": None,
-    "reflection_text": ""
+    "reflection_text": "",
+    "knowledge_saved": [],
+    "knowledge_read": [],
+    "brain_quiz_answer": {},
+    "brain_quiz_submitted": False,
+    "care_revealed": [],
+    "care_notes": ""
 }
 
 for key, value in DEFAULTS.items():
@@ -523,13 +529,27 @@ def welcome_screen():
         letter-spacing:.16em;
     }
 
+    .welcome-shell,
+    .welcome-shell * {
+        color:#F7FBF9 !important;
+        -webkit-text-fill-color:#F7FBF9 !important;
+        opacity:1 !important;
+    }
+    .welcome-shell h1 { color:#FFFFFF !important; -webkit-text-fill-color:#FFFFFF !important; }
+    .welcome-shell h3 { color:#FFE3A0 !important; -webkit-text-fill-color:#FFE3A0 !important; }
     .welcome-shell p {
-        color:#e0f0e9;
+        color:#EAF5F0 !important;
+        -webkit-text-fill-color:#EAF5F0 !important;
         max-width:700px;
         margin:18px auto;
         line-height:1.9;
+        font-size:1.04rem;
     }
-
+    .welcome-shell b, .welcome-shell strong {
+        color:#FFE3A0 !important;
+        -webkit-text-fill-color:#FFE3A0 !important;
+    }
+    [data-testid="stCaptionContainer"] p { color:#48665D !important; }
     .welcome-symbol {font-size:3.5rem;}
     </style>
     """, unsafe_allow_html=True)
@@ -570,7 +590,6 @@ def welcome_screen():
         .replace("\n", " ")
     )
 
-    # Đã sửa lỗi escape ngoặc nhọn cú pháp JavaScript để tránh lỗi màn hình trắng
     components.html(f"""
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:18px 0 6px">
       <button id="speak"
@@ -593,47 +612,44 @@ def welcome_screen():
       const message = '{safe_text}';
       const status = document.getElementById('voice-status');
 
-      document.getElementById('speak').onclick = function() {{
+      document.getElementById('speak').onclick = () => {{
         if (!('speechSynthesis' in window)) {{
-          status.textContent = 'Trình duyệt này chưa hỗ trợ đọc văn bản.';
+          status.textContent='Trình duyệt này chưa hỗ trợ đọc văn bản.';
           return;
         }}
 
         window.speechSynthesis.cancel();
 
         const utter = new SpeechSynthesisUtterance(message);
-        utter.lang = 'vi-VN';
-        utter.rate = 0.9;
-        utter.pitch = 1;
-        utter.volume = 1;
+        utter.lang='vi-VN';
+        utter.rate=0.9;
+        utter.pitch=1;
+        utter.volume=1;
 
-        const voices = window.speechSynthesis.getVoices();
-        const vi = voices.find(function(v) {{
-          return v.lang && v.lang.toLowerCase().startsWith('vi');
-        }});
+        const voices=window.speechSynthesis.getVoices();
+        const vi=voices.find(v =>
+          v.lang && v.lang.toLowerCase().startsWith('vi')
+        );
 
-        if (vi) utter.voice = vi;
+        if (vi) utter.voice=vi;
 
-        utter.onstart = function() {{
-          status.textContent = 'Đang phát lời giới thiệu…';
-        }};
+        utter.onstart=() =>
+          status.textContent='Đang phát lời giới thiệu…';
 
-        utter.onend = function() {{
-          status.textContent = 'Đã phát xong lời giới thiệu.';
-        }};
+        utter.onend=() =>
+          status.textContent='Đã phát xong lời giới thiệu.';
 
-        utter.onerror = function() {{
-          status.textContent = 'Không thể phát giọng đọc trên thiết bị này.';
-        }};
+        utter.onerror=() =>
+          status.textContent='Không thể phát giọng đọc trên thiết bị này.';
 
         window.speechSynthesis.speak(utter);
       }};
 
-      document.getElementById('stop').onclick = function() {{
+      document.getElementById('stop').onclick = () => {{
         if ('speechSynthesis' in window) {{
           window.speechSynthesis.cancel();
         }}
-        status.textContent = 'Đã dừng giọng đọc.';
+        status.textContent='Đã dừng giọng đọc.';
       }};
     </script>
     """, height=105)
@@ -810,6 +826,7 @@ elif page == "Khám phá Alzheimer":
         unsafe_allow_html=True
     )
 
+    # Chia các Tab nâng cấp cho Module 1
     mod1_tabs = st.tabs([
         "🧬 Cơ chế sinh học thần kinh",
         "📊 Các giai đoạn tiến triển",
@@ -848,7 +865,7 @@ elif page == "Khám phá Alzheimer":
 
         stage_cols = st.columns(3)
         stages_info = [
-            ("Giai đoạn 1: Sớm (Nhẹ)", "🌱", "Bắt đầu quên các cuộc trò chuyện gần đây, hay đi lạc, khó tập trung hoặc lập kế hoạch. Người bệnh vẫn có thể tự chăm sóc bản thân nhưng bắt đầu nhận thấy sự khác biệt."),
+            ("Giai đoạn 1: Sớm (Nhẹ)", "🌱", "Bắt đầu quên các cuộc trò chuyện gần đây, hay để lẫn lộn đồ đạc, khó tập trung hoặc lập kế hoạch. Người bệnh vẫn có thể tự chăm sóc bản thân nhưng bắt đầu nhận thấy sự khác biệt."),
             ("Giai đoạn 2: Trung bình", "⚡", "Vùng não tổn thương lan rộng. Người bệnh gặp khó khăn khi mặc quần áo, nhầm lẫn thứ ngày/tháng, hay đi lạc, có thể có các thay đổi về cảm xúc hoặc hoang tưởng nhẹ."),
             ("Giai đoạn 3: Tiến triển (Nặng)", "🛡️", "Mất khả năng giao tiếp mạch lạc, không nhận diện được người thân quen, phụ thuộc hoàn toàn vào người chăm sóc trong mọi hoạt động ăn uống, vệ sinh hằng ngày.")
         ]
@@ -881,68 +898,110 @@ elif page == "Não bộ & trí nhớ":
     section_header(
         "02 / THE BRAIN",
         "Não bộ & trí nhớ",
-        "Tìm hiểu cách não bộ tiếp nhận, lưu trữ và gợi lại những điều làm nên ký ức."
+        "Khám phá cách một trải nghiệm trở thành ký ức, vai trò của các mạng lưới não bộ và những thay đổi có thể gặp trong Alzheimer."
     )
 
     st.markdown("""
     <div class="panel">
       <div class="panel-icon">🧠</div>
-      <h3>Trí nhớ là một mạng lưới</h3>
-      <p>Trí nhớ hình thành từ hoạt động phối hợp của nhiều vùng não
-      và các kết nối thần kinh. Không có một “ngăn kéo ký ức”
-      duy nhất trong não.</p>
+      <h3>Trí nhớ không nằm trong một chiếc hộp duy nhất</h3>
+      <p>Trí nhớ là kết quả phối hợp của nhiều vùng não và mạng lưới thần kinh. Mỗi vùng đóng góp một phần vào việc tiếp nhận, xử lý, lưu giữ và gợi lại thông tin.</p>
     </div>
     """, unsafe_allow_html=True)
 
-    st.write("")
+    tab_map, tab_process, tab_types, tab_alzheimer, tab_check = st.tabs([
+        "🧩 Bản đồ não bộ", "🔄 Hành trình ký ức", "📚 Các dạng trí nhớ",
+        "🧠 Alzheimer tác động", "🎯 Tự kiểm tra"
+    ])
 
-    brain_cols = st.columns(3)
+    with tab_map:
+        st.subheader("Một số vùng não và vai trò liên quan")
+        brain_regions = [
+            ("🧭", "Hồi hải mã", "Đóng vai trò quan trọng trong việc hình thành và củng cố ký ức mới, đặc biệt là ký ức về sự kiện và trải nghiệm."),
+            ("🗣️", "Mạng lưới ngôn ngữ", "Nhiều vùng não phối hợp để hiểu lời nói, lựa chọn từ ngữ, đọc và diễn đạt suy nghĩ."),
+            ("❤️", "Mạng lưới cảm xúc", "Các cấu trúc như hạch hạnh nhân tham gia xử lý cảm xúc và góp phần tạo sắc thái cảm xúc cho trải nghiệm."),
+            ("🧭", "Vùng định hướng không gian", "Các mạng lưới vùng thái dương, đỉnh và những vùng khác giúp nhận biết vị trí, phương hướng và bối cảnh."),
+            ("⚙️", "Vỏ não trước trán", "Tham gia lập kế hoạch, chú ý, kiểm soát hành vi và trí nhớ làm việc.")
+        ]
+        for row in range(0, len(brain_regions), 2):
+            cols = st.columns(2)
+            for col, item in zip(cols, brain_regions[row:row+2]):
+                with col:
+                    st.markdown(f'<div class="panel"><div class="panel-icon">{item[0]}</div><h3>{html.escape(item[1])}</h3><p class="muted">{html.escape(item[2])}</p></div>', unsafe_allow_html=True)
+        st.info("Lưu ý: Đây là mô tả khái quát. Trí nhớ và nhận thức không do một vùng não đơn lẻ đảm nhiệm; các vùng luôn hoạt động trong mạng lưới.")
 
-    brain_data = [
-        ("🧭", "Hồi hải mã",
-         "Có vai trò quan trọng trong việc hình thành và củng cố ký ức mới."),
-        ("🗣️", "Vùng ngôn ngữ",
-         "Tham gia hiểu lời nói, lựa chọn từ ngữ và diễn đạt suy nghĩ."),
-        ("❤️", "Mạng lưới cảm xúc",
-         "Góp phần tạo nên sắc thái cảm xúc gắn với trải nghiệm và ký ức.")
-    ]
+    with tab_process:
+        st.subheader("Bốn chặng khái quát của một ký ức")
+        process = [
+            ("01 · Tiếp nhận", "Giác quan đưa thông tin về âm thanh, hình ảnh, mùi, vị hoặc xúc giác đến não."),
+            ("02 · Mã hóa", "Não chú ý, xử lý và liên kết thông tin mới với kiến thức hoặc trải nghiệm đã có."),
+            ("03 · Lưu giữ", "Những thay đổi trong kết nối thần kinh giúp duy trì thông tin theo thời gian."),
+            ("04 · Gợi lại", "Ta truy xuất thông tin khi cần; việc gợi lại có thể chịu ảnh hưởng bởi ngữ cảnh, cảm xúc và sự chú ý.")
+        ]
+        for n, (title, desc) in enumerate(process):
+            st.markdown(f'<div class="panel"><div class="tag">CHẶNG {n+1}</div><h3>{title}</h3><p class="muted">{desc}</p></div>', unsafe_allow_html=True)
+        st.markdown("**Thử liên hệ:** Khi bạn nghe một bài hát quen thuộc và nhớ đến một chuyến đi, những chặng nào vừa diễn ra?")
+        example = st.selectbox("Chọn mô tả phù hợp nhất", ["Chỉ có lưu giữ, không có gợi lại", "Âm thanh được tiếp nhận, liên kết với trải nghiệm và ký ức được gợi lại", "Ký ức chỉ được tạo ra khi ta cố học thuộc"], key="brain_process_example")
+        if st.button("Kiểm tra ví dụ", key="brain_process_check"):
+            if example.startswith("Âm thanh"):
+                st.success("Chính xác. Một tín hiệu hiện tại có thể kích hoạt liên tưởng và giúp ta gợi lại trải nghiệm cũ.")
+            else:
+                st.info("Hãy nghĩ đến cả quá trình: tiếp nhận tín hiệu, xử lý/liên kết và gợi lại thông tin.")
 
-    for col, (icon, title, desc) in zip(brain_cols, brain_data):
-        with col:
-            st.markdown(
-                f'<div class="panel"><div class="panel-icon">{icon}</div>'
-                f'<h3>{title}</h3><p class="muted">{desc}</p></div>',
-                unsafe_allow_html=True
-            )
+    with tab_types:
+        memory_types = [
+            ("Trí nhớ sự kiện", "Nhớ một buổi sinh nhật, chuyến đi hoặc cuộc gặp cụ thể."),
+            ("Trí nhớ ngữ nghĩa", "Nhớ kiến thức, ý nghĩa từ ngữ và sự thật đã học."),
+            ("Trí nhớ kỹ năng", "Thực hiện một kỹ năng đã luyện tập, chẳng hạn đạp xe hoặc chơi nhạc cụ."),
+            ("Trí nhớ làm việc", "Giữ tạm thời và thao tác với thông tin trong lúc giải quyết một việc, như nhớ một chỉ dẫn ngắn.")
+        ]
+        for title, desc in memory_types:
+            with st.expander(title):
+                st.write(desc)
+        st.caption("Các dạng trí nhớ có thể tương tác với nhau; cách phân loại trên nhằm giúp người học dễ hình dung.")
 
-    st.write("")
-    st.subheader("Một ký ức được hình thành như thế nào?")
+    with tab_alzheimer:
+        st.subheader("Điều gì có thể thay đổi trong Alzheimer?")
+        st.write("Alzheimer là bệnh lý tiến triển có thể làm tổn thương tế bào thần kinh và kết nối giữa chúng. Khó khăn thường xuất hiện ở trí nhớ gần đây, sau đó có thể ảnh hưởng đến ngôn ngữ, định hướng, suy luận và sinh hoạt hằng ngày.")
+        impact = st.select_slider("Khám phá theo mức độ hỗ trợ thường cần (mang tính khái quát)", options=["Giai đoạn sớm", "Giai đoạn trung bình", "Giai đoạn tiến triển"])
+        impact_text = {
+            "Giai đoạn sớm": "Có thể bắt đầu gặp khó khăn khi ghi nhớ thông tin mới, tìm từ hoặc quản lý công việc phức tạp. Người đó vẫn có thể tự thực hiện nhiều hoạt động.",
+            "Giai đoạn trung bình": "Nhầm lẫn về thời gian, địa điểm, lặp lại câu hỏi hoặc cần hỗ trợ nhiều hơn trong sinh hoạt có thể trở nên rõ rệt.",
+            "Giai đoạn tiến triển": "Giao tiếp và khả năng tự chăm sóc có thể suy giảm đáng kể; cần hỗ trợ thường xuyên và chăm sóc phù hợp."
+        }
+        st.info(impact_text[impact])
+        st.warning("Diễn tiến ở mỗi người không hoàn toàn giống nhau. Nội dung này không dùng để tự xác định giai đoạn hay chẩn đoán bệnh.")
 
-    stages = st.columns(4)
+    with tab_check:
+        brain_questions = [
+            ("Vùng nào có vai trò quan trọng trong hình thành ký ức mới?", ["Hồi hải mã", "Da", "Phổi"], 0, "Hồi hải mã tham gia quan trọng vào việc hình thành và củng cố ký ức mới."),
+            ("Trí nhớ được đảm nhiệm bởi…", ["Một điểm duy nhất trong não", "Mạng lưới nhiều vùng não", "Chỉ cơ bắp"], 1, "Nhiều vùng và mạng lưới thần kinh phối hợp trong các hoạt động trí nhớ."),
+            ("Khi người thân quên một sự kiện, điều nào nên được ghi nhớ?", ["Họ cố tình không quan tâm", "Giá trị và cảm xúc của họ vẫn cần được tôn trọng", "Cần kiểm tra trí nhớ liên tục"], 1, "Khó khăn về trí nhớ không làm mất đi phẩm giá và nhu cầu được tôn trọng.")
+        ]
+        for qi, (question, options, answer, why) in enumerate(brain_questions):
+            st.markdown(f"**Câu {qi+1}. {question}**")
+            st.radio("Chọn một đáp án", options, key=f"brain_quiz_{qi}", index=None, label_visibility="collapsed")
+        if st.button("Chấm phần tự kiểm tra", type="primary", key="brain_quiz_submit"):
+            score = 0
+            for qi, (_, options, answer, _) in enumerate(brain_questions):
+                if st.session_state.get(f"brain_quiz_{qi}") == options[answer]:
+                    score += 1
+            st.session_state.brain_quiz_submitted = True
+            st.session_state.brain_quiz_score = score
+        if st.session_state.get("brain_quiz_submitted"):
+            score = st.session_state.get("brain_quiz_score", 0)
+            st.success(f"Bạn trả lời đúng {score}/{len(brain_questions)} câu.")
+            for qi, (question, options, answer, why) in enumerate(brain_questions):
+                chosen = st.session_state.get(f"brain_quiz_{qi}")
+                st.markdown(f"**{qi+1}. {'Đúng' if chosen == options[answer] else 'Ôn tập thêm'}** — {why}")
+            if st.button("Làm lại phần tự kiểm tra", key="brain_quiz_reset"):
+                st.session_state.brain_quiz_submitted = False
+                for qi in range(len(brain_questions)):
+                    st.session_state.pop(f"brain_quiz_{qi}", None)
+                st.rerun()
 
-    stage_data = [
-        ("01", "Tiếp nhận", "Não bộ tiếp nhận thông tin từ giác quan."),
-        ("02", "Mã hóa", "Thông tin được xử lý và liên kết với trải nghiệm."),
-        ("03", "Lưu trữ", "Các kết nối thần kinh tham gia duy trì thông tin."),
-        ("04", "Gợi lại", "Ta truy xuất thông tin khi cần sử dụng.")
-    ]
-
-    for col, (n, title, desc) in zip(stages, stage_data):
-        with col:
-            st.markdown(
-                f'<div class="panel"><div class="tag">BƯỚC {n}</div>'
-                f'<h3>{title}</h3><p class="muted">{desc}</p></div>',
-                unsafe_allow_html=True
-            )
-
-    st.markdown(
-        '<div class="quote">Khi một người không thể nhớ lại điều gì đó, '
-        'điều đó không có nghĩa là tình cảm, nhân cách hay giá trị '
-        'của họ biến mất.</div>',
-        unsafe_allow_html=True
-    )
-
-    if st.button("Hoàn thành chủ đề Não bộ & trí nhớ", type="primary"):
+    st.markdown('<div class="quote">Một ký ức có thể phai mờ, nhưng cảm xúc và nhu cầu được tôn trọng của con người vẫn cần được quan tâm.</div>', unsafe_allow_html=True)
+    if st.button("Hoàn thành chủ đề Não bộ & trí nhớ", type="primary", key="complete_brain"):
         mark_complete("brain")
         st.success("Bạn đã hoàn thành chủ đề này.")
 
@@ -953,71 +1012,81 @@ elif page == "Não bộ & trí nhớ":
 elif page == "Thư viện tri thức":
 
     section_header(
-        "03 / KNOWLEDGE LIBRARY",
-        "Thư viện tri thức",
-        "Chọn một chủ đề để đọc. Nội dung được thiết kế ngắn gọn, gần gũi và dễ ghi nhớ."
+        "03 / KNOWLEDGE LIBRARY", "Thư viện tri thức",
+        "Một thư viện học tập có thể tìm kiếm, lưu chủ đề yêu thích và theo dõi hành trình đọc của bạn."
     )
 
-    categories = ["Tất cả"] + sorted(
-        set(x["category"] for x in KNOWLEDGE)
-    )
+    total = len(KNOWLEDGE)
+    read_count = len(st.session_state.knowledge_read)
+    saved_count = len(st.session_state.knowledge_saved)
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Chủ đề", total)
+    m2.metric("Đã đọc", f"{read_count}/{total}")
+    m3.metric("Đã lưu", saved_count)
+    st.progress(read_count / total if total else 0)
 
-    selected_category = st.selectbox(
-        "Lọc theo chủ đề",
-        categories
-    )
+    search_col, category_col = st.columns([2, 1])
+    with search_col:
+        search = st.text_input("🔎 Tìm trong thư viện", placeholder="Nhập từ khóa: trí nhớ, amyloid, giao tiếp…", key="knowledge_search")
+    with category_col:
+        categories = ["Tất cả"] + sorted(set(x["category"] for x in KNOWLEDGE))
+        selected_category = st.selectbox("Danh mục", categories, key="knowledge_category")
 
-    search = st.text_input(
-        "Tìm kiếm nội dung",
-        placeholder="Ví dụ: trí nhớ, giao tiếp, chăm sóc…"
-    )
+    view_mode = st.radio("Hiển thị", ["Tất cả chủ đề", "Chủ đề đã lưu", "Chủ đề đã đọc"], horizontal=True, key="knowledge_view")
+    filtered = []
+    for item in KNOWLEDGE:
+        haystack = " ".join([item["title"], item["summary"], item["category"], " ".join(item["body"]), item["takeaway"]]).casefold()
+        idx = KNOWLEDGE.index(item)
+        if selected_category != "Tất cả" and item["category"] != selected_category:
+            continue
+        if search and search.casefold() not in haystack:
+            continue
+        if view_mode == "Chủ đề đã lưu" and idx not in st.session_state.knowledge_saved:
+            continue
+        if view_mode == "Chủ đề đã đọc" and idx not in st.session_state.knowledge_read:
+            continue
+        filtered.append((idx, item))
 
-    filtered = [
-        x for x in KNOWLEDGE
-        if (
-            selected_category == "Tất cả"
-            or x["category"] == selected_category
-        )
-        and (
-            not search
-            or search.lower() in (
-                x["title"] + x["summary"] + x["category"]
-            ).lower()
-        )
-    ]
-
+    st.markdown(f"**{len(filtered)} kết quả** phù hợp với bộ lọc hiện tại.")
     if not filtered:
-        st.warning("Không tìm thấy chủ đề phù hợp. Hãy thử từ khóa khác.")
+        st.info("Chưa có chủ đề phù hợp. Hãy đổi từ khóa hoặc bộ lọc.")
 
-    for item in filtered:
+    for idx, item in filtered:
+        with st.container(border=True):
+            left, right = st.columns([5, 1])
+            with left:
+                st.markdown(f"### {item['icon']} {item['title']}")
+                st.caption(f"{item['category']} · {len(item['body'])} phần nội dung · khoảng {max(1, sum(len(x.split()) for x in item['body']) // 180 + 1)} phút đọc")
+                st.write(item["summary"])
+            with right:
+                is_saved = idx in st.session_state.knowledge_saved
+                if st.button("★ Đã lưu" if is_saved else "☆ Lưu", key=f"save_knowledge_{idx}", use_container_width=True):
+                    if is_saved:
+                        st.session_state.knowledge_saved.remove(idx)
+                    else:
+                        st.session_state.knowledge_saved.append(idx)
+                    st.rerun()
+            with st.expander("Mở bài đọc và nội dung chi tiết"):
+                for paragraph in item["body"]:
+                    st.write(paragraph)
+                st.markdown(f'<div class="quote"><b>Điều cần nhớ:</b> {html.escape(item["takeaway"])}</div>', unsafe_allow_html=True)
+                read = idx in st.session_state.knowledge_read
+                if st.button("✓ Đánh dấu đã đọc" if not read else "Đã hoàn thành bài đọc", key=f"mark_knowledge_{idx}", type="primary" if not read else "secondary"):
+                    if idx not in st.session_state.knowledge_read:
+                        st.session_state.knowledge_read.append(idx)
+                    mark_complete(f"knowledge_{idx}")
+                    st.success("Đã cập nhật tiến trình đọc của bạn.")
 
-        item_index = KNOWLEDGE.index(item)
-
-        with st.expander(
-            f'{item["icon"]}  {item["title"]}  ·  {item["category"]}'
-        ):
-
-            st.write(item["summary"])
-
-            for paragraph in item["body"]:
-                st.write(paragraph)
-
-            st.markdown(
-                f'<div class="quote"><b>Điều cần nhớ:</b> '
-                f'{item["takeaway"]}</div>',
-                unsafe_allow_html=True
-            )
-
-            if st.button(
-                "Đánh dấu đã đọc",
-                key=f"read_{item_index}"
-            ):
-                mark_complete(f"knowledge_{item_index}")
-                st.success("Đã đánh dấu chủ đề đã đọc.")
-
-    st.caption(
-        f"Đang hiển thị {len(filtered)} / {len(KNOWLEDGE)} chủ đề."
-    )
+    with st.expander("📖 Bảng thuật ngữ nhanh"):
+        glossary = {
+            "Amyloid-beta": "Một loại protein có thể tích tụ thành mảng trong não ở bệnh Alzheimer.",
+            "Tau": "Protein giúp ổn định cấu trúc bên trong tế bào thần kinh; trong Alzheimer có thể biến đổi bất thường và hình thành đám rối.",
+            "Tế bào thần kinh": "Tế bào chuyên tiếp nhận và truyền tín hiệu trong hệ thần kinh.",
+            "Nhận thức": "Các hoạt động tinh thần như chú ý, ghi nhớ, ngôn ngữ, định hướng và suy luận."
+        }
+        for term, definition in glossary.items():
+            st.markdown(f"**{term}** — {definition}")
+    st.caption("Tiến trình đọc và danh sách đã lưu được lưu trong phiên sử dụng hiện tại của trình duyệt, không phải tài khoản đồng bộ dùng chung.")
 
 # ============================================================
 # 10. CẨM NANG ĐỒNG HÀNH
@@ -1026,73 +1095,76 @@ elif page == "Thư viện tri thức":
 elif page == "Cẩm nang đồng hành":
 
     section_header(
-        "04 / CARE GUIDE",
-        "Cẩm nang đồng hành",
-        "Thử đặt mình vào những tình huống quen thuộc và lựa chọn cách phản hồi giàu tôn trọng."
+        "04 / CARE GUIDE", "Cẩm nang đồng hành",
+        "Luyện cách phản hồi trong những tình huống đời sống. Không có một công thức áp dụng cho tất cả; hãy ưu tiên an toàn, tôn trọng và nhu cầu của từng người."
     )
 
-    st.markdown(
-        '<div class="quote">Mục tiêu không phải là “thắng” một cuộc tranh luận '
-        'hay buộc ai đó phải nhớ đúng. Mục tiêu là giữ an toàn, '
-        'giảm căng thẳng và duy trì kết nối.</div>',
-        unsafe_allow_html=True
-    )
+    st.markdown('<div class="quote">Mục tiêu không phải buộc người thân phải nhớ đúng. Mục tiêu là giữ an toàn, giảm căng thẳng và duy trì kết nối.</div>', unsafe_allow_html=True)
 
-    for i, scenario in enumerate(CARE_SCENARIOS):
-
+    extra_scenarios = [
+        {"title":"Người thân muốn về nhà dù đang ở nhà", "situation":"Người thân đứng dậy, lo lắng và nói: “Tôi phải về nhà thôi”.", "options":[("A","Tranh luận rằng đây chính là nhà của họ."),("B","Bình tĩnh hỏi điều gì đang khiến họ lo lắng, trấn an và thử chuyển sang hoạt động quen thuộc."),("C","Quát lớn để họ ngồi xuống.")], "best":"B", "explain":"Cảm giác muốn về nhà có thể gắn với lo lắng hoặc nhu cầu tìm sự an toàn. Hãy lắng nghe cảm xúc, trấn an và đánh giá xem có nguy cơ an toàn nào cần xử lý."},
+        {"title":"Người thân từ chối tắm", "situation":"Đến giờ vệ sinh cá nhân, người thân tỏ ra khó chịu và không muốn vào phòng tắm.", "options":[("A","Ép buộc ngay lập tức."),("B","Bỏ mặc hoàn toàn dù vệ sinh đang ảnh hưởng sức khỏe."),("C","Tìm hiểu nguyên nhân, giải thích từng bước, giữ riêng tư và cho họ lựa chọn phù hợp.")], "best":"C", "explain":"Có thể người thân thấy lạnh, sợ trượt ngã, xấu hổ hoặc chưa hiểu việc sắp diễn ra. Tôn trọng riêng tư, chuẩn bị môi trường an toàn và chia nhỏ thao tác."},
+        {"title":"Người thân đi lại bồn chồn vào buổi chiều", "situation":"Cuối ngày, người thân liên tục đi quanh nhà và khó ngồi yên.", "options":[("A","La mắng và yêu cầu ngồi im."),("B","Quan sát yếu tố gây khó chịu, kiểm tra nhu cầu cơ bản và tạo hoạt động nhẹ nhàng trong không gian an toàn."),("C","Khóa họ một mình trong phòng.")], "best":"B", "explain":"Hãy kiểm tra đói, khát, đau, mệt, nhu cầu đi vệ sinh, tiếng ồn hoặc thay đổi môi trường. Nếu hành vi mới xuất hiện đột ngột hoặc bất thường, cần trao đổi với nhân viên y tế."},
+        {"title":"Người thân quên uống thuốc", "situation":"Bạn nhận ra người thân không chắc mình đã uống thuốc hay chưa.", "options":[("A","Cho uống bù ngay để chắc chắn."),("B","Tự ý thay đổi liều."),("C","Kiểm tra lịch/khay thuốc và liên hệ người phụ trách hoặc nhân viên y tế để được hướng dẫn; không tự cho uống thêm khi chưa rõ.")], "best":"C", "explain":"Dùng thuốc cần tuân theo hướng dẫn chuyên môn. Không tự ý tăng, giảm hoặc uống bù liều khi chưa xác minh; có thể dùng hộp chia thuốc và lịch nhắc do gia đình thống nhất."}
+    ]
+    all_scenarios = CARE_SCENARIOS + extra_scenarios
+    st.markdown("### Bộ tình huống thực hành")
+    st.caption(f"{len(all_scenarios)} tình huống · Chọn cách phản hồi, xem phân tích và rút ra nguyên tắc.")
+    score = 0
+    answered = 0
+    for i, scenario in enumerate(all_scenarios):
         with st.container(border=True):
-
-            st.markdown(
-                f"### Tình huống {i+1}: {scenario['title']}"
-            )
-
+            st.markdown(f"### Tình huống {i+1:02d} · {scenario['title']}")
             st.write(scenario["situation"])
-
-            choice = st.radio(
-                "Bạn sẽ phản hồi thế nào?",
-                options=[
-                    f"{letter}. {text}"
-                    for letter, text in scenario["options"]
-                ],
-                key=f"care_choice_{i}",
-                index=None
-            )
-
-            if st.button("Xem gợi ý", key=f"care_reveal_{i}"):
-
-                selected_letter = choice[0] if choice else None
-
-                st.session_state.care_answers[i] = selected_letter
-
-            if i in st.session_state.care_answers:
-
-                selected_letter = st.session_state.care_answers[i]
-
-                if selected_letter == scenario["best"]:
-                    st.success(
-                        "Lựa chọn phù hợp. " + scenario["explain"]
-                    )
-
-                elif selected_letter is None:
-                    st.info(
-                        "Hãy thử chọn một phương án trước. "
-                        + scenario["explain"]
-                    )
-
+            choice = st.radio("Bạn sẽ làm gì?", [f"{letter}. {text}" for letter, text in scenario["options"]], key=f"care_choice_v2_{i}", index=None, label_visibility="visible")
+            if st.button("Phân tích lựa chọn", key=f"care_reveal_v2_{i}"):
+                if choice:
+                    st.session_state.care_revealed.append(i)
                 else:
-                    st.warning(
-                        f"Phương án nên ưu tiên là {scenario['best']}. "
-                        + scenario["explain"]
-                    )
+                    st.warning("Hãy chọn một phương án trước khi xem phân tích.")
+            if i in st.session_state.care_revealed:
+                selected = choice[0] if choice else None
+                if selected:
+                    answered += 1
+                    if selected == scenario["best"]:
+                        score += 1
+                        st.success("Lựa chọn phù hợp. " + scenario["explain"])
+                    else:
+                        st.warning(f"Trong tình huống này, nên ưu tiên phương án {scenario['best']}. " + scenario["explain"])
+                else:
+                    st.info(scenario["explain"])
 
-    if len(st.session_state.care_answers) == len(CARE_SCENARIOS):
+    st.divider()
+    st.subheader("Bộ nguyên tắc đồng hành hằng ngày")
+    tips = [
+        "Tiếp cận từ phía trước, giới thiệu bản thân nếu cần và gọi tên người thân.",
+        "Dùng câu ngắn, mỗi lần một hướng dẫn; dành đủ thời gian để họ phản hồi.",
+        "Tránh tranh cãi, chất vấn hoặc làm người thân xấu hổ khi họ nhầm lẫn.",
+        "Giữ lối đi thông thoáng, ánh sáng phù hợp và vật dụng quen thuộc ở vị trí ổn định.",
+        "Khuyến khích người thân tự làm phần việc họ còn có thể làm; hỗ trợ khi cần.",
+        "Chia sẻ trách nhiệm chăm sóc và dành thời gian nghỉ ngơi cho người chăm sóc."
+    ]
+    checked = []
+    for i, tip in enumerate(tips):
+        if st.checkbox(tip, key=f"care_checklist_{i}"):
+            checked.append(i)
+    st.progress(len(checked) / len(tips))
+    st.caption(f"Bạn đã rà soát {len(checked)}/{len(tips)} nguyên tắc.")
 
-        if st.button(
-            "Hoàn thành cẩm nang đồng hành",
-            type="primary"
-        ):
+    st.subheader("Soạn một kế hoạch hỗ trợ nhỏ")
+    st.text_area("Một điều tôi muốn thử áp dụng trong tuần này", key="care_notes", placeholder="Ví dụ: nói chậm hơn, giảm tiếng ồn khi trò chuyện, cùng gia đình sắp xếp lối đi an toàn…")
+    if st.button("Lưu kế hoạch trong phiên này", key="save_care_plan"):
+        if st.session_state.care_notes.strip():
+            st.success("Đã lưu nội dung trong phiên sử dụng hiện tại.")
+        else:
+            st.info("Bạn hãy viết một hành động nhỏ trước nhé.")
+
+    if len(st.session_state.care_revealed) >= len(all_scenarios):
+        if st.button("Hoàn thành cẩm nang đồng hành", type="primary", key="complete_care_v2"):
             mark_complete("care")
-            st.success("Đã hoàn thành các tình huống.")
+            st.success("Bạn đã hoàn thành bộ tình huống thực hành.")
+
+    st.warning("Cẩm nang mang tính giáo dục, không thay thế hướng dẫn cá nhân từ bác sĩ hoặc chuyên gia chăm sóc. Khi có thay đổi sức khỏe/hành vi đột ngột, té ngã, đau hoặc nguy cơ mất an toàn, hãy tìm trợ giúp y tế phù hợp.")
 
 # ============================================================
 # 11. TRẠM TRẢI NGHIỆM
