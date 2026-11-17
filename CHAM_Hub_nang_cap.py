@@ -64,13 +64,11 @@ html, body, [class*="css"] {
     font-family: 'Be Vietnam Pro', sans-serif;
 }
 
-/* Nền tổng thể trắng ngà ấm áp */
 .stApp {
     background-color: #FAF8F5;
     color: #1B3B5A;
 }
 
-/* Thanh bên (Sidebar) xanh navy dịu kết hợp điểm nhấn tươi sáng */
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, #1B3B5A 0%, #244D73 100%);
     border-right: 1px solid #32628E;
@@ -85,7 +83,6 @@ section[data-testid="stSidebar"] .stRadio label {
     padding: 4px 0;
 }
 
-/* Sửa lỗi ô Metric trên Sidebar bị nền trắng chữ trắng */
 section[data-testid="stSidebar"] div[data-testid="stMetric"] {
     background: rgba(255, 255, 255, 0.14) !important;
     border: 1px solid rgba(255, 255, 255, 0.25) !important;
@@ -107,7 +104,6 @@ p {
     line-height: 1.75;
 }
 
-/* Banner Hero tươi sáng */
 .hero {
     background: linear-gradient(125deg, #1F4E78 0%, #367B8A 55%, #489E82 100%);
     padding: 42px;
@@ -136,7 +132,6 @@ p {
     margin-bottom: 6px;
 }
 
-/* Thẻ nội dung có hiệu ứng hover mượt mà */
 .panel {
     background: #FFFFFF;
     border: 1px solid #EAE4DC;
@@ -239,7 +234,7 @@ a {
 footer { visibility: hidden; }
 #MainMenu { visibility: hidden; }
 
-/* Màn hình chào mừng hiệu ứng gõ phím */
+/* Màn hình chào mừng hiệu ứng gõ phím chậm rãi & tinh tế */
 @keyframes blinkCursor {
     0%, 49% { border-color: #F3C66F; }
     50%, 100% { border-color: transparent; }
@@ -256,50 +251,85 @@ footer { visibility: hidden; }
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 24px;
+    padding: 30px;
 }
 
 .typewriter-text {
     color: #FFFFFF;
-    font-size: clamp(24px, 4vw, 42px);
+    font-size: clamp(24px, 4vw, 40px);
     font-weight: 800;
     border-right: 4px solid #F3C66F;
-    padding-right: 8px;
+    padding-right: 10px;
     animation: blinkCursor 0.75s infinite;
-    max-width: 90%;
+    max-width: 900px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.welcome-desc {
+    color: #E2ECE9;
+    font-size: clamp(14px, 1.8vw, 18px);
+    font-weight: 400;
+    margin-top: 16px;
+    max-width: 700px;
+    line-height: 1.6;
+    opacity: 0.95;
 }
 
 .welcome-sub {
     color: #F3C66F;
-    font-size: clamp(15px, 2vw, 20px);
+    font-size: clamp(13px, 1.5vw, 16px);
     font-weight: 600;
-    margin-top: 18px;
-    letter-spacing: 1.5px;
+    margin-top: 14px;
+    letter-spacing: 2px;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================================
-# 4. MÀN HÌNH CHÀO MỪNG HIỆU ỨNG GÕ PHÍM
+# 4. MÀN HÌNH CHÀO MỪNG HIỆU ỨNG GÕ PHÍM CHẬM RÃI & CÓ ÂM THANH
 # =========================================================
 
 if not st.session_state.welcomed:
     splash = st.empty()
-    full_title = "CHẠM — Thấu hiểu để kết nối"
-    typed = ""
+    title_text = "CHẠM — Thấu hiểu để kết nối"
+    desc_text = "Nền tảng tri thức và trải nghiệm giáo dục số đồng hành cùng bộ trò chơi bàn, giúp bạn thấu hiểu về Alzheimer, sẻ chia gánh nặng chăm sóc và lan tỏa sự nhân văn."
     
-    for char in full_title:
-        typed += char
+    typed_title = ""
+    
+    # Phát âm thanh chào mừng tự động qua thẻ HTML audio ẩn
+    audio_html = """
+    <audio autoplay style="display:none;">
+        <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c368686d.mp3?filename=positive-notification-95150.mp3" type="audio/mpeg">
+    </audio>
+    """
+    st.markdown(audio_html, unsafe_allow_html=True)
+
+    # Hiệu ứng gõ chữ từ từ từng ký tự cho tiêu đề
+    for char in title_text:
+        typed_title += char
         splash.markdown(f"""
         <div class="welcome-overlay">
-            <div style="font-size: 68px; margin-bottom: 16px;">🤝</div>
-            <div class="typewriter-text">{html.escape(typed)}</div>
-            <div class="welcome-sub">KẾT NỐI ĐỂ SẺ CHIA • KHÔNG AI PHẢI ĐI MỘT MÌNH</div>
+            <div style="font-size: 64px; margin-bottom: 14px;">🤝</div>
+            <div class="typewriter-text">{html.escape(typed_title)}</div>
+            <div class="welcome-desc" style="opacity:0;"></div>
+            <div class="welcome-sub" style="opacity:0;"></div>
         </div>
         """, unsafe_allow_html=True)
-        time.sleep(0.055)
-        
-    time.sleep(1.1)
+        time.sleep(0.08)  # Tốc độ gõ chậm rãi, rõ ràng từng nhịp
+
+    # Sau khi gõ xong tiêu đề, hiện tiếp đoạn mô tả ngắn mượt mà
+    time.sleep(0.3)
+    splash.markdown(f"""
+    <div class="welcome-overlay">
+        <div style="font-size: 64px; margin-bottom: 14px;">🤝</div>
+        <div class="typewriter-text">{html.escape(title_text)}</div>
+        <div class="welcome-desc">{html.escape(desc_text)}</div>
+        <div class="welcome-sub">KẾT NỐI ĐỂ SẺ CHIA • KHÔNG AI PHẢI ĐI MỘT MÌNH</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    time.sleep(2.5) # Dừng lại đôi chút để người dùng kịp đọc trọn vẹn giới thiệu
     splash.empty()
     st.session_state.welcomed = True
 
