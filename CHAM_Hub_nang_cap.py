@@ -516,36 +516,29 @@ div.stButton > button[kind="primary"]:hover {
     border-color:#09473e;
 }
 
-/* Tabs: màu chữ/nền tương phản ở cả chế độ sáng và tối */
-.stTabs [data-baseweb="tab-list"] {
-    gap:8px;
-    flex-wrap:nowrap;
-    overflow-x:auto;
-    scrollbar-width:thin;
-}
+.stTabs [data-baseweb="tab-list"] {gap:8px;}
 
 .stTabs [data-baseweb="tab"] {
     background:#e7f2eb !important;
-    color:#244b40 !important;
-    border:1px solid #cbd8cf !important;
+    color:#183b37 !important;
+    -webkit-text-fill-color:#183b37 !important;
     border-radius:10px 10px 0 0;
-    padding:10px 16px;
-    min-height:44px;
-    white-space:nowrap;
+    padding:10px 18px;
+    opacity:1 !important;
 }
 
 .stTabs [data-baseweb="tab"] p,
 .stTabs [data-baseweb="tab"] div,
 .stTabs [data-baseweb="tab"] span {
-    color:#244b40 !important;
-    -webkit-text-fill-color:#244b40 !important;
+    color:#183b37 !important;
+    -webkit-text-fill-color:#183b37 !important;
     opacity:1 !important;
 }
 
 .stTabs [data-baseweb="tab"][aria-selected="true"] {
-    background:#0d6255 !important;
+    background:#0c6253 !important;
     color:#ffffff !important;
-    border-color:#0d6255 !important;
+    -webkit-text-fill-color:#ffffff !important;
 }
 
 .stTabs [data-baseweb="tab"][aria-selected="true"] p,
@@ -553,45 +546,42 @@ div.stButton > button[kind="primary"]:hover {
 .stTabs [data-baseweb="tab"][aria-selected="true"] span {
     color:#ffffff !important;
     -webkit-text-fill-color:#ffffff !important;
+}
+
+/* Sidebar: giữ chữ dễ đọc khi Streamlit ở Light hoặc Dark Mode */
+[data-testid="stSidebar"] {
+    background:#e9f4ed !important;
+    color:#183b37 !important;
+    color-scheme:light;
+}
+
+[data-testid="stSidebar"] *,
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] span {
+    color:#183b37 !important;
+    -webkit-text-fill-color:#183b37 !important;
     opacity:1 !important;
 }
 
-.stTabs [data-baseweb="tab-panel"] {
-    color:inherit !important;
+[data-testid="stSidebar"] [role="radiogroup"] label {
+    background:transparent !important;
+    border-radius:8px !important;
 }
 
-/* Dark Mode: tab chưa chọn sáng chữ trên nền tối */
-@media (prefers-color-scheme: dark) {
-    .stTabs [data-baseweb="tab"] {
-        background:#263b33 !important;
-        color:#e4eee8 !important;
-        border-color:#526c60 !important;
-    }
-    .stTabs [data-baseweb="tab"] p,
-    .stTabs [data-baseweb="tab"] div,
-    .stTabs [data-baseweb="tab"] span {
-        color:#e4eee8 !important;
-        -webkit-text-fill-color:#e4eee8 !important;
-    }
-    .stTabs [data-baseweb="tab"][aria-selected="true"] {
-        background:#267763 !important;
-        color:#ffffff !important;
-        border-color:#267763 !important;
-    }
-    .stTabs [data-baseweb="tab"][aria-selected="true"] p,
-    .stTabs [data-baseweb="tab"][aria-selected="true"] div,
-    .stTabs [data-baseweb="tab"][aria-selected="true"] span {
-        color:#ffffff !important;
-        -webkit-text-fill-color:#ffffff !important;
-    }
+[data-testid="stSidebar"] [role="radiogroup"] label p,
+[data-testid="stSidebar"] [role="radiogroup"] label span {
+    color:#31564d !important;
+    -webkit-text-fill-color:#31564d !important;
+    opacity:1 !important;
 }
 
-@media (max-width:640px) {
-    .stTabs [data-baseweb="tab-list"] {gap:5px;}
-    .stTabs [data-baseweb="tab"] {padding:9px 11px; font-size:.84rem;}
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) p,
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) span {
+    color:#0c6253 !important;
+    -webkit-text-fill-color:#0c6253 !important;
+    font-weight:800 !important;
 }
-
-[data-testid="stSidebar"] {background:#e9f4ed;}
 
 hr {border-color:#dcebe2;}
 
