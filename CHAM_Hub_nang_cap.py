@@ -516,12 +516,79 @@ div.stButton > button[kind="primary"]:hover {
     border-color:#09473e;
 }
 
-.stTabs [data-baseweb="tab-list"] {gap:8px;}
+/* Tabs: màu chữ/nền tương phản ở cả chế độ sáng và tối */
+.stTabs [data-baseweb="tab-list"] {
+    gap:8px;
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    scrollbar-width:thin;
+}
 
 .stTabs [data-baseweb="tab"] {
-    background:#e7f2eb;
+    background:#e7f2eb !important;
+    color:#244b40 !important;
+    border:1px solid #cbd8cf !important;
     border-radius:10px 10px 0 0;
-    padding:10px 18px;
+    padding:10px 16px;
+    min-height:44px;
+    white-space:nowrap;
+}
+
+.stTabs [data-baseweb="tab"] p,
+.stTabs [data-baseweb="tab"] div,
+.stTabs [data-baseweb="tab"] span {
+    color:#244b40 !important;
+    -webkit-text-fill-color:#244b40 !important;
+    opacity:1 !important;
+}
+
+.stTabs [data-baseweb="tab"][aria-selected="true"] {
+    background:#0d6255 !important;
+    color:#ffffff !important;
+    border-color:#0d6255 !important;
+}
+
+.stTabs [data-baseweb="tab"][aria-selected="true"] p,
+.stTabs [data-baseweb="tab"][aria-selected="true"] div,
+.stTabs [data-baseweb="tab"][aria-selected="true"] span {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    opacity:1 !important;
+}
+
+.stTabs [data-baseweb="tab-panel"] {
+    color:inherit !important;
+}
+
+/* Dark Mode: tab chưa chọn sáng chữ trên nền tối */
+@media (prefers-color-scheme: dark) {
+    .stTabs [data-baseweb="tab"] {
+        background:#263b33 !important;
+        color:#e4eee8 !important;
+        border-color:#526c60 !important;
+    }
+    .stTabs [data-baseweb="tab"] p,
+    .stTabs [data-baseweb="tab"] div,
+    .stTabs [data-baseweb="tab"] span {
+        color:#e4eee8 !important;
+        -webkit-text-fill-color:#e4eee8 !important;
+    }
+    .stTabs [data-baseweb="tab"][aria-selected="true"] {
+        background:#267763 !important;
+        color:#ffffff !important;
+        border-color:#267763 !important;
+    }
+    .stTabs [data-baseweb="tab"][aria-selected="true"] p,
+    .stTabs [data-baseweb="tab"][aria-selected="true"] div,
+    .stTabs [data-baseweb="tab"][aria-selected="true"] span {
+        color:#ffffff !important;
+        -webkit-text-fill-color:#ffffff !important;
+    }
+}
+
+@media (max-width:640px) {
+    .stTabs [data-baseweb="tab-list"] {gap:5px;}
+    .stTabs [data-baseweb="tab"] {padding:9px 11px; font-size:.84rem;}
 }
 
 [data-testid="stSidebar"] {background:#e9f4ed;}
